@@ -1,1 +1,20 @@
-[]
+[
+  {
+    "data": "2026-07-07T15:31:10.388Z",
+    "datas": {
+      "ida": "2027-02-04",
+      "volta": "2027-02-10"
+    },
+    "voo": {
+      "precoDireto": 772,
+      "companhia": "easyJet",
+      "detalhe": "LIS 13:10 → SID 16:30"
+    },
+    "hotel": {
+      "precoTotal": 1903,
+      "regime": "Tudo incluído",
+      "fonte": "Meliá Dunas Beach Resort & Spa All Inclusive"
+    },
+    "totalPacote": 2675
+  }
+]
