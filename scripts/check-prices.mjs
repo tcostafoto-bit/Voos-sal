@@ -87,7 +87,7 @@ function formatHora(datetime) {
   return parts[1]?.slice(0, 5) ?? '';
 }
 
-async function fetchHotel({ nome, cidade, noites, adultos, criancas, idadesCriancas, moeda }, checkIn, checkOut) {
+async function fetchHotel({ nome, cidade, noites, adultos, criancas, idadesCriancas, propertyToken, moeda }, checkIn, checkOut) {
   try {
     const params = {
       engine: 'google_hotels',
@@ -103,19 +103,30 @@ async function fetchHotel({ nome, cidade, noites, adultos, criancas, idadesCrian
     if (criancas > 0 && idadesCriancas?.length) {
       params.children_ages = idadesCriancas.join(',');
     }
+    if (propertyToken) {
+      params.property_token = propertyToken;
+    }
     const data = await serpApiGet(params);
 
-    const propriedades = data.properties || [];
-    if (propriedades.length === 0) return null;
+    // Com property_token, a resposta é a propriedade única (não uma lista).
+    const prop = propertyToken ? data : (data.properties || []).find((p) => p.name?.toLowerCase().includes('melia')) ?? data.properties?.[0];
+    if (!prop) return null;
 
-    // Preferir a propriedade cujo nome mais se aproxima do configurado.
-    const alvo = nome.toLowerCase();
-    const prop =
-      propriedades.find((p) => p.name?.toLowerCase().includes('melia') || p.name?.toLowerCase().includes(alvo)) ??
-      propriedades[0];
+    const pax = adultos + criancas;
+    const fontes = (data.prices || prop.prices || []).filter((s) => s.total_rate?.extracted_lowest != null);
 
-    const rate = prop.rate_per_night?.extracted_lowest ?? prop.total_rate?.extracted_lowest ?? null;
-    const total = prop.total_rate?.extracted_lowest ?? null;
+    let melhorFonte = null;
+    if (fontes.length > 0) {
+      // Preferir a fonte oficial do hotel com a ocupação correta; senão, a mais barata com ocupação correta; senão, a mais barata disponível.
+      const comOcupacaoCerta = fontes.filter((s) => s.num_guests === pax);
+      const candidatas = comOcupacaoCerta.length > 0 ? comOcupacaoCerta : fontes;
+      melhorFonte =
+        candidatas.find((s) => s.official) ??
+        candidatas.reduce((min, s) => (s.total_rate.extracted_lowest < min.total_rate.extracted_lowest ? s : min), candidatas[0]);
+    }
+
+    const total = melhorFonte?.total_rate?.extracted_lowest ?? prop.total_rate?.extracted_lowest ?? null;
+    const rate = melhorFonte?.rate_per_night?.extracted_lowest ?? prop.rate_per_night?.extracted_lowest ?? null;
 
     let precoTotal;
     let base;
@@ -131,7 +142,7 @@ async function fetchHotel({ nome, cidade, noites, adultos, criancas, idadesCrian
 
     const regime = (prop.amenities || []).find((a) => /all.inclusive|tudo inclu/i.test(a)) ? 'Tudo incluído' : null;
 
-    return { precoTotal, regime, baseCalculo: base };
+    return { precoTotal, regime, baseCalculo: base, fonte: melhorFonte?.source ?? null };
   } catch (err) {
     console.error('Erro ao consultar hotel:', err.message);
     return null;
@@ -179,7 +190,7 @@ async function verificarDatas(config, ida, volta) {
     data: new Date().toISOString(),
     datas: { ida, volta },
     voo: voo ?? null,
-    hotel: hotel ? { precoTotal: hotel.precoTotal, regime: hotel.regime } : null,
+    hotel: hotel ? { precoTotal: hotel.precoTotal, regime: hotel.regime, fonte: hotel.fonte } : null,
     totalPacote,
   };
 }
