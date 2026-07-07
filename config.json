@@ -14,6 +14,7 @@
     "noites": 6,
     "adultos": 2,
     "criancas": 1,
+    "idadesCriancas": [4],
     "moeda": "EUR",
     "alvoTotal": null,
     "quedaAlertaPct": 8

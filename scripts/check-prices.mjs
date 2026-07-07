@@ -87,9 +87,9 @@ function formatHora(datetime) {
   return parts[1]?.slice(0, 5) ?? '';
 }
 
-async function fetchHotel({ nome, cidade, noites, adultos, criancas, moeda }, checkIn, checkOut) {
+async function fetchHotel({ nome, cidade, noites, adultos, criancas, idadesCriancas, moeda }, checkIn, checkOut) {
   try {
-    const data = await serpApiGet({
+    const params = {
       engine: 'google_hotels',
       q: `${nome} ${cidade}`,
       check_in_date: checkIn,
@@ -99,7 +99,11 @@ async function fetchHotel({ nome, cidade, noites, adultos, criancas, moeda }, ch
       currency: moeda,
       hl: 'pt',
       gl: 'pt',
-    });
+    };
+    if (criancas > 0 && idadesCriancas?.length) {
+      params.children_ages = idadesCriancas.join(',');
+    }
+    const data = await serpApiGet(params);
 
     const propriedades = data.properties || [];
     if (propriedades.length === 0) return null;
