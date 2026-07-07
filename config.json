@@ -1,0 +1,27 @@
+{
+  "voo": {
+    "origem": "LIS",
+    "destino": "SID",
+    "adultos": 2,
+    "criancas": 1,
+    "moeda": "EUR",
+    "alvoTotal": 850,
+    "quedaAlertaPct": 8
+  },
+  "hotel": {
+    "nome": "Meliá Dunas Beach Resort & Spa",
+    "cidade": "Santa Maria, Sal, Cape Verde",
+    "noites": 6,
+    "adultos": 2,
+    "criancas": 1,
+    "moeda": "EUR",
+    "alvoTotal": null,
+    "quedaAlertaPct": 8
+  },
+  "datasReferencia": { "ida": "2027-02-04", "volta": "2027-02-10" },
+  "datasAlternativas": [
+    { "ida": "2027-02-03", "volta": "2027-02-09" },
+    { "ida": "2027-02-05", "volta": "2027-02-11" }
+  ],
+  "verificarAlternativasNoDia": "domingo"
+}

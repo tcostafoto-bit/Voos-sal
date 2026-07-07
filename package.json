@@ -1,0 +1,13 @@
+{
+  "name": "voos-sal",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Alerta automático de preços voo+hotel Lisboa->Sal via SerpAPI e Telegram.",
+  "scripts": {
+    "check": "node scripts/check-prices.mjs"
+  },
+  "engines": {
+    "node": ">=20"
+  }
+}
