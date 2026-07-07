@@ -1,1 +1,19 @@
-[]
+[
+  {
+    "data": "2026-07-07T12:14:01.405Z",
+    "datas": {
+      "ida": "2027-02-04",
+      "volta": "2027-02-10"
+    },
+    "voo": {
+      "precoDireto": 772,
+      "companhia": "easyJet",
+      "detalhe": "LIS 13:10 → SID 16:30"
+    },
+    "hotel": {
+      "precoTotal": 2491,
+      "regime": "Tudo incluído"
+    },
+    "totalPacote": 3263
+  }
+]
