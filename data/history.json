@@ -16,5 +16,23 @@
       "fonte": "Meliá Dunas Beach Resort & Spa All Inclusive"
     },
     "totalPacote": 2675
+  },
+  {
+    "data": "2026-07-08T15:54:45.907Z",
+    "datas": {
+      "ida": "2027-02-04",
+      "volta": "2027-02-10"
+    },
+    "voo": {
+      "precoDireto": 772,
+      "companhia": "easyJet",
+      "detalhe": "LIS 13:10 → SID 16:30"
+    },
+    "hotel": {
+      "precoTotal": 2491,
+      "regime": "Tudo incluído",
+      "fonte": "Booking.com"
+    },
+    "totalPacote": 3263
   }
 ]
