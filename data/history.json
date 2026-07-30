@@ -396,5 +396,19 @@
     },
     "hotel": null,
     "totalPacote": null
+  },
+  {
+    "data": "2026-07-30T13:17:52.035Z",
+    "datas": {
+      "ida": "2027-02-04",
+      "volta": "2027-02-10"
+    },
+    "voo": {
+      "precoDireto": 752,
+      "companhia": "easyJet",
+      "detalhe": "LIS 13:10 → SID 16:30"
+    },
+    "hotel": null,
+    "totalPacote": null
   }
 ]
