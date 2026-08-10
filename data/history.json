@@ -566,5 +566,23 @@
       "fonte": "Booking.com"
     },
     "totalPacote": 3273
+  },
+  {
+    "data": "2026-08-10T09:25:28.399Z",
+    "datas": {
+      "ida": "2027-02-04",
+      "volta": "2027-02-10"
+    },
+    "voo": {
+      "precoDireto": 826,
+      "companhia": "easyJet",
+      "detalhe": "LIS 13:10 → SID 16:30"
+    },
+    "hotel": {
+      "precoTotal": 2489,
+      "regime": "Tudo incluído",
+      "fonte": "Booking.com"
+    },
+    "totalPacote": 3315
   }
 ]
