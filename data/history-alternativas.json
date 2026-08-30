@@ -234,5 +234,37 @@
       "fonte": "Booking.com"
     },
     "totalPacote": 3443
+  },
+  {
+    "data": "2026-08-30T13:39:28.904Z",
+    "datas": {
+      "ida": "2027-02-03",
+      "volta": "2027-02-09"
+    },
+    "voo": {
+      "precoDireto": 729,
+      "companhia": "easyJet",
+      "detalhe": "LIS 14:05 → SID 17:25"
+    },
+    "hotel": {
+      "precoTotal": 2736,
+      "regime": "Tudo incluído",
+      "fonte": "Destinia"
+    },
+    "totalPacote": 3465
+  },
+  {
+    "data": "2026-08-30T13:39:32.236Z",
+    "datas": {
+      "ida": "2027-02-05",
+      "volta": "2027-02-11"
+    },
+    "voo": {
+      "precoDireto": 1092,
+      "companhia": "Tap Air Portugal",
+      "detalhe": "LIS 09:15 → SID 12:30"
+    },
+    "hotel": null,
+    "totalPacote": null
   }
 ]
