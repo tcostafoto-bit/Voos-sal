@@ -1064,5 +1064,23 @@
       "fonte": "Booking.com"
     },
     "totalPacote": 3359
+  },
+  {
+    "data": "2026-09-08T12:41:39.258Z",
+    "datas": {
+      "ida": "2027-02-04",
+      "volta": "2027-02-10"
+    },
+    "voo": {
+      "precoDireto": 884,
+      "companhia": "easyJet",
+      "detalhe": "LIS 13:10 → SID 16:30"
+    },
+    "hotel": {
+      "precoTotal": 2736,
+      "regime": "Tudo incluído",
+      "fonte": "Destinia"
+    },
+    "totalPacote": 3620
   }
 ]
