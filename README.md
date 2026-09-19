@@ -2,6 +2,10 @@
 
 Sistema automático (GitHub Actions + SerpAPI + Telegram) que verifica diariamente o preço do voo direto Lisboa→Sal e do hotel Meliá Dunas Beach Resort & Spa, guarda o histórico e avisa no Telegram quando aparece uma oportunidade.
 
+## Outros sistemas neste repositório
+
+- [assistente/](./assistente/) — assistente pessoal ligado ao Google Calendar e ao Gmail, com entrada por Telegram e painel visual.
+
 Ver [config.json](./config.json) para alvos de preço e datas, [scripts/check-prices.mjs](./scripts/check-prices.mjs) para a lógica, e a pasta [dashboard/](./dashboard/) para o painel visual (deploy em produção).
 
 ## Nota importante — preço do hotel

@@ -1,0 +1,23 @@
+{
+  "name": "assistente-pessoal",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Assistente pessoal ligado ao Google Calendar e Gmail, com entrada por Telegram e painel visual.",
+  "scripts": {
+    "dev": "wrangler dev",
+    "deploy": "wrangler deploy",
+    "logs": "wrangler tail",
+    "test": "node --test testes/*.mjs",
+    "token-google": "node scripts/obter-token-google.mjs"
+  },
+  "dependencies": {
+    "@anthropic-ai/sdk": "^0.70.0"
+  },
+  "devDependencies": {
+    "wrangler": "^4.0.0"
+  },
+  "engines": {
+    "node": ">=20"
+  }
+}

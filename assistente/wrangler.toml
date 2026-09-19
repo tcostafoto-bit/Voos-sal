@@ -1,0 +1,19 @@
+name = "assistente-pessoal"
+main = "src/index.js"
+compatibility_date = "2026-09-01"
+compatibility_flags = ["nodejs_compat"]
+
+# Varrimento diário: 06:00 UTC (07:00 em Lisboa no inverno, 08:00 no verão).
+# Muda aqui se quiseres receber o resumo a outra hora.
+[triggers]
+crons = ["0 6 * * *"]
+
+# Armazenamento de estado (conversa, sugestões de email, ações dos botões).
+# Cria com:  npx wrangler kv namespace create ESTADO
+# e cola o id devolvido aqui.
+[[kv_namespaces]]
+binding = "ESTADO"
+id = "SUBSTITUIR_PELO_ID_DO_KV"
+
+[vars]
+MODELO = "claude-opus-5"

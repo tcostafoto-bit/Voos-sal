@@ -1,0 +1,10 @@
+# Copia para .dev.vars para correr localmente com `npm run dev`.
+# Em produção estes valores são secrets do Cloudflare, não ficheiros.
+ANTHROPIC_API_KEY=
+GOOGLE_CLIENT_ID=
+GOOGLE_CLIENT_SECRET=
+GOOGLE_REFRESH_TOKEN=
+TELEGRAM_TOKEN=
+TELEGRAM_SEGREDO=
+PAINEL_TOKEN=
+URL_PUBLICA=
