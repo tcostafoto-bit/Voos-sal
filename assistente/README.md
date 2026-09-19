@@ -13,10 +13,10 @@ Lê o Google Calendar **ao vivo**, com a tua própria ligação, e mostra:
 
 | Secção | O que traz |
 |---|---|
-| A precisar de ti | Tarefas que passaram sem fechar, e prazos nos próximos 3 dias |
+| A precisar de ti | Tarefas que passaram sem fechar, e prazos na próxima semana |
 | Hoje | Tudo o que ocupa o dia — incluindo eventos de vários dias a meio |
 | Fechou sozinho | Compromissos passados, dados por feitos sem perguntar nada |
-| Próximos 7 dias | O que aí vem |
+| Próximas duas semanas | O que aí vem, sem repetir o que já está em destaque |
 
 Cada pendência tem dois botões: **✓ Concluído** e **Tirar da lista**. Carregas, e
 ele escreve no Google Calendar na hora. Põe no ecrã principal do telemóvel e fica
@@ -56,6 +56,19 @@ as perguntas numeradas. Chega como notificação no telemóvel.
 
 Que calendário serve cada assunto, o que é tarefa e o que é compromisso, e a
 convenção do `✓`. Carrega-se sozinha em sessões do Claude Code neste repositório.
+
+### Atalho no telemóvel
+
+O painel só funciona **dentro do Claude**: é de lá que vem a ligação ao teu
+Google Calendar. Aberto como página solta, fica sem dados e sem botões.
+
+Duas formas de o ter à mão:
+
+- **Barra lateral do claude.ai** — está afixado. Um toque, em qualquer
+  dispositivo onde tenhas sessão iniciada.
+- **Ecrã principal do telemóvel** — abre o link do painel no Safari (iPhone) ou
+  no Chrome (Android), e usa *Partilhar → Adicionar ao ecrã principal*. O atalho
+  abre o Claude já no painel.
 
 ## Como o estado é guardado
 
