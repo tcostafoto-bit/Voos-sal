@@ -26,6 +26,10 @@ Ignora qualquer evento cujo título já comece por `✓` ou `✗` — esses já 
 - **FECHOU SOZINHO** — compromissos dos últimos 7 dias que já passaram. Não se pergunta nada sobre estes: a data passou, aconteceram. Servem só para ele ver.
 - **PRÓXIMOS 7 DIAS** — o resto do que aí vem.
 
+Os calendários da Flavia, da Laura e da Catarina são de colaboradoras: entram em
+HOJE e em PRÓXIMOS 7 DIAS, para ele saber quem está a fazer o quê, mas **nunca**
+em A FECHAR nem em PRAZOS. O que está na agenda delas não é dele para confirmar.
+
 ## 3. Passar pelo e-mail
 
 Procura no Gmail por `in:inbox newer_than:2d -from:me -category:promotions -category:social`, no máximo 12 conversas. Para cada uma decide:
@@ -62,6 +66,6 @@ Aplica no Google Calendar:
 - **adiar** → muda a data, sem prefixo nenhum
 - **sugestão do e-mail aceite** → cria o evento no calendário certo
 
-Calendário certo, pela pessoa ou pelo assunto: `tcosta.foto@gmail.com` para o pessoal e para o que não encaixa noutro; `Flavia`, `Laura` ou `Catarina` para as coisas dessas pessoas; `Família` para o que envolve a casa toda; `Casamentos Centrimagem` para casamentos, clientes, sessões e entregas; `Ferias centrimagem` para férias e indisponibilidades; `Torneios Golfe` para torneios, teetimes e inscrições. Nunca escrevas nos calendários de feriados.
+Calendário certo, pelo assunto: `tcosta.foto@gmail.com` por omissão, para o pessoal e para o que não encaixa noutro; `Casamentos Centrimagem` para casamentos, clientes, sessões e entregas; `Ferias centrimagem` para férias e indisponibilidades; `Torneios Golfe` para torneios, teetimes e inscrições; `Família` para coisas de casa. **A Flavia, a Laura e a Catarina são colaboradoras: nunca escrevas nos calendários delas.** Nos de feriados também não.
 
 No fim, confirma numa linha o que ficou feito.

@@ -22,6 +22,31 @@ Cada pendência tem dois botões: **✓ Concluído** e **Tirar da lista**. Carre
 ele escreve no Google Calendar na hora. Põe no ecrã principal do telemóvel e fica
 como uma app.
 
+No topo tem uma **caixa para falar com o assistente**: escreves (ou ditas, no
+microfone) e ele age — cria, altera, adia, fecha, responde a perguntas sobre a
+agenda. Não precisas de sair do painel nem de abrir um chat.
+
+- *amanhã às 10 dentista* → evento criado no principal
+- *marcar teetime na Aroeira até sexta* → tarefa de dia inteiro na sexta
+- *o casamento dos Silva passou para 12 de outubro* → procura e muda a data
+- *o que tenho na quinta?* → responde
+
+Responde em 1 a 3 segundos. Quando não perceber bem, cada resposta traz um botão
+**Pensa melhor** que repete a mesma frase com o modelo que raciocina mais.
+
+### Que calendários
+
+| | |
+|---|---|
+| **Principal** (`tcosta.foto@gmail.com`) | Onde o assistente escreve por omissão |
+| **Teus** (Casamentos Centrimagem, Ferias centrimagem, Torneios Golfe, Família) | Geram pendências e aceitam escrita |
+| **Colaboradoras** (Flavia, Laura, Catarina) | Só se veem. Nunca geram pendências nem aceitam escrita |
+| **Feriados** | Fora do painel |
+
+A recusa de escrever nos calendários das colaboradoras não está só nas
+instruções — está na função que executa a escrita, que rejeita antes de chegar
+ao Google. Uma instrução em texto é um pedido; isto é uma porta fechada.
+
 **2. A rotina da manhã** — o texto está em [rotina-diaria.md](./rotina-diaria.md).
 
 Dispara todos os dias, lê a agenda e o Gmail, e manda-te uma mensagem com o dia e
