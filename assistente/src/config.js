@@ -1,5 +1,7 @@
 // Regras e constantes do assistente.
 
+import { paraRelogioLisboa, somarDias } from './tempo.js';
+
 /** Propriedades que o assistente guarda dentro do próprio evento do Google
  *  Calendar (extendedProperties.private). Vivem no calendário, não numa base de
  *  dados nossa — se o KV se perder, o estado sobrevive. */
@@ -58,6 +60,25 @@ export function inicioDoEvento(evento) {
 
 export function ehDiaInteiro(evento) {
   return Boolean(evento?.start?.date);
+}
+
+/**
+ * O evento ocupa este dia? Não basta perguntar se começa nele: um evento de
+ * três dias tem de aparecer no "hoje" dos três, não só no primeiro.
+ */
+export function abrangeDia(evento, diaISO) {
+  if (evento?.start?.date) {
+    const inicio = evento.start.date.slice(0, 10);
+    // A data de fim de um evento de dia inteiro é exclusiva no Google.
+    const fimExclusivo = (evento.end?.date ?? somarDias(inicio, 1)).slice(0, 10);
+    return inicio <= diaISO && diaISO < fimExclusivo;
+  }
+  if (!evento?.start?.dateTime) return false;
+  const inicio = paraRelogioLisboa(evento.start.dateTime).slice(0, 10);
+  const fim = evento.end?.dateTime
+    ? paraRelogioLisboa(evento.end.dateTime).slice(0, 10)
+    : inicio;
+  return inicio <= diaISO && diaISO <= fim;
 }
 
 // Limites operacionais — mantêm o custo e o ruído controlados.

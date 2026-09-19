@@ -1,7 +1,8 @@
 // O varrimento: olhar para a agenda e para o email e decidir o que perguntar.
 
 import {
-  LIMITES, PROP, ehDiaInteiro, estadoDoEvento, fimDoEvento, inicioDoEvento, precisaConfirmacao,
+  LIMITES, PROP, abrangeDia, ehDiaInteiro, estadoDoEvento, fimDoEvento,
+  inicioDoEvento, precisaConfirmacao,
 } from './config.js';
 import { triarEmail } from './cerebro.js';
 import * as google from './google.js';
@@ -66,7 +67,7 @@ export async function recolher(env) {
     const estado = estadoDoEvento(evento);
     const editavel = evento._calendario?.editavel !== false;
 
-    if (dia === hoje) doDia.push(cartao(evento));
+    if (abrangeDia(evento, hoje)) doDia.push(cartao(evento));
 
     const jaPassou = fim ? fim.getTime() < agora.getTime() : diferencaDias(hoje, dia) < 0;
 

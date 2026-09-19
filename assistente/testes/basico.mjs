@@ -2,7 +2,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 
-import { precisaConfirmacao, estadoDoEvento, PROP } from '../src/config.js';
+import { abrangeDia, precisaConfirmacao, estadoDoEvento, PROP } from '../src/config.js';
 import { inferirFim, montarExtremo } from '../src/ferramentas.js';
 import {
   dataISO, diaPorExtenso, diferencaDias, paraRelogioLisboa,
@@ -91,4 +91,24 @@ test('adiar uma semana mantém a hora apesar da mudança de hora', () => {
 test('a hora de relógio vem do fuso de Lisboa, não de UTC', () => {
   assert.equal(paraRelogioLisboa('2026-07-15T12:00:00Z'), '2026-07-15T13:00:00');
   assert.equal(paraRelogioLisboa('2026-01-15T12:00:00Z'), '2026-01-15T12:00:00');
+});
+
+test('um evento de vários dias aparece em todos os dias que ocupa', () => {
+  // "ACP Golfe" corre de 18 a 20 de setembro (o fim, 21, é exclusivo).
+  const acp = { summary: 'ACP Golfe', start: { date: '2026-09-18' }, end: { date: '2026-09-21' } };
+  assert.equal(abrangeDia(acp, '2026-09-17'), false);
+  assert.equal(abrangeDia(acp, '2026-09-18'), true);
+  assert.equal(abrangeDia(acp, '2026-09-19'), true, 'o dia do meio contava como livre');
+  assert.equal(abrangeDia(acp, '2026-09-20'), true);
+  assert.equal(abrangeDia(acp, '2026-09-21'), false);
+});
+
+test('um evento com hora ocupa o seu dia', () => {
+  const reuniao = {
+    summary: 'Reuniao escola',
+    start: { dateTime: '2026-09-21T13:00:00+01:00' },
+    end: { dateTime: '2026-09-21T14:00:00+01:00' },
+  };
+  assert.equal(abrangeDia(reuniao, '2026-09-21'), true);
+  assert.equal(abrangeDia(reuniao, '2026-09-20'), false);
 });
