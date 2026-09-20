@@ -146,6 +146,15 @@ test('classificação dos calendários reais', () => {
   assert.equal(reais.filter((c) => P.ehPrincipal(c.id)).length, 1);
 });
 
+test('tarefas: os verbos do dia-a-dia dele contam', () => {
+  assert.equal(P.ehTarefa('Procurar fornecedores de conversores VHS'), true, 'evento real criado pela caixa');
+  assert.equal(P.ehTarefa('Enviar orçamento ao casal Ferreira'), true);
+  assert.equal(P.ehTarefa('Combinar visita com o António'), true);
+  assert.equal(P.ehTarefa('Anos abutre'), false);
+  assert.equal(P.ehTarefa('Final acp'), false);
+  assert.equal(P.ehTarefa('Torneio the open embaixador'), false);
+});
+
 test('relógio de Lisboa: adiar por cima da mudança de hora mantém a hora', () => {
   assert.equal(P.somarDiasRelogio(P.relogioDe('2026-10-21T14:00:00+01:00'), 7), '2026-10-28T14:00:00');
   assert.equal(P.somarMinutos('2026-10-03T23:30', 60), '2026-10-04T00:30:00');
