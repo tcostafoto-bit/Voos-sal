@@ -15,7 +15,7 @@ const P = new Function('document', 'window', js + `
   return { semAcentos, ehTarefa, jaFechado, ehPrincipal, somarDias, difDias, diaISO, datasNoTexto,
            abrangeDia, jaPassou, diaDoExtremo, arrumarEventos, montarLoteTriagem, podarTurnos,
            trechoComData, somarMinutos, somarDiasRelogio, relogioDe, COLABORADORAS, MAX_THREADS,
-           estadoMemoria };
+           estadoMemoria, ehNota, notasDeEventos, MARCA_NOTA, PREFIXO_TAREFA, PREFIXO_FACTO };
 `)(documento, janela);
 
 const HOJE = '2026-09-20';
@@ -193,4 +193,45 @@ test('uma secção da memória nunca desaparece — diz sempre em que pé está'
   const preso = P.estadoMemoria('pronta', 'sem_resposta', 'vazio normal');
   assert.ok(preso.html.includes('não respondeu a tempo'), preso.html);
   assert.ok(preso.html.includes('data-memoria'));
+});
+
+test('notas: vivem no calendário e vêm de duas fontes', () => {
+  const nota = (id, titulo, criada) => ({ id, summary: titulo, status: 'confirmed',
+    start: { date: '2026-09-20' }, end: { date: '2026-09-21' },
+    description: '[' + P.MARCA_NOTA + '] tarefa sem data · caixa', created: criada });
+
+  const dedicados = [
+    nota('n1', P.PREFIXO_TAREFA + ' Ligar ao António dos Simuladores', '2026-09-20T11:30:00Z'),
+    nota('n2', P.PREFIXO_FACTO + ' O casamento dos Silva é com a Joana', '2026-09-19T09:00:00Z'),
+    nota('n3', '✓ Comprar tinteiros', '2026-09-18T09:00:00Z'),
+    nota('n4', '✗ Coisa que já não interessa', '2026-09-17T09:00:00Z'),
+  ];
+  // A mesma n1 também veio no watch normal do calendário: não pode duplicar.
+  const porCal = { 'p@x': [dedicados[0], nota('n5', P.PREFIXO_TAREFA + ' Enviar orçamento dos sacos', '2026-09-20T12:00:00Z')] };
+
+  const r = P.notasDeEventos(dedicados, porCal, 'p@x');
+  assert.deepEqual(r.map((n) => n.id), ['n5', 'n1', 'n2'], 'sem duplicados, mais recente primeiro, sem ✓/✗');
+  assert.equal(r.find((n) => n.id === 'n1').texto, 'Ligar ao António dos Simuladores', 'o prefixo sai do texto');
+  assert.equal(r.find((n) => n.id === 'n2').tipo, 'facto');
+  assert.equal(r.find((n) => n.id === 'n1').tipo, 'tarefa');
+
+  // Se o watch dedicado falhar, o calendário normal ainda sustenta a lista.
+  assert.equal(P.notasDeEventos([], porCal, 'p@x').length, 2, 'uma fonte em baixo não esvazia a lista');
+  assert.equal(P.notasDeEventos(dedicados, {}, 'p@x').length, 2);
+});
+
+test('notas: nunca aparecem como compromissos da agenda', () => {
+  const marcada = { summary: P.PREFIXO_TAREFA + ' Ligar ao António', description: '[' + P.MARCA_NOTA + '] tarefa sem data' };
+  assert.equal(P.ehNota(marcada), true);
+  assert.equal(P.ehNota({ summary: 'Jantar com o Rui' }), false);
+  // Basta o prefixo, mesmo sem descrição — ou a marca, mesmo sem prefixo.
+  assert.equal(P.ehNota({ summary: P.PREFIXO_FACTO + ' Um facto' }), true);
+  assert.equal(P.ehNota({ summary: 'Sem prefixo', description: 'x [' + P.MARCA_NOTA + '] y' }), true);
+
+  const cals = [{ id: 'p@x', nome: 'Principal', cor: '#000', principal: true, contexto: false }];
+  const g = P.arrumarEventos({ 'p@x': [marcada && {
+    id: 'n1', status: 'confirmed', summary: marcada.summary, description: marcada.description,
+    start: { date: '2026-09-20' }, end: { date: '2026-09-21' } }] }, cals, new Date('2026-09-20T10:00:00+01:00'), {});
+  assert.equal(g.hoje.length, 0, 'uma nota não ocupa o dia');
+  assert.equal(g.aFechar.length + g.prazos.length + g.proximos.length, 0);
 });

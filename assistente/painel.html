@@ -189,6 +189,14 @@ var INTERVALO_TRIAGEM = 4 * 3600 * 1000;
 var MAX_THREADS = 15;
 var MAX_NOTAS_NO_PROMPT = 40;
 
+// A memória vive no Google Calendar, não na base de dados do artefacto: é o
+// único sítio que responde em todas as vistas, e ele vê-a na agenda dele.
+// Prefixo no título diz o que é; a marca na descrição torna-as procuráveis.
+var MARCA_NOTA = 'nota-assistente';
+var PREFIXO_TAREFA = '\u25FB';   // ◻
+var PREFIXO_FACTO = '\u2605';    // ★
+var DIAS_NOTAS_ATRAS = 365;
+
 var COLABORADORAS = ['flavia', 'laura', 'catarina'];
 var CONSULTA_EMAIL = 'in:inbox newer_than:3d -from:me -category:promotions -category:social';
 
@@ -317,7 +325,7 @@ function arrumarEventos(eventosPorCal, calendarios, agora, avisosVistos) {
     var cal = porId[calId];
     if (!cal) return;
     (eventosPorCal[calId] || []).forEach(function (ev) {
-      if (!ev || ev.status === 'cancelled') return;
+      if (!ev || ev.status === 'cancelled' || ehNota(ev)) return;
       var dia = diaDoExtremo(ev.start);
       if (!dia) return;
       var titulo = ev.summary || '(sem título)';
@@ -363,6 +371,32 @@ function arrumarEventos(eventosPorCal, calendarios, agora, avisosVistos) {
   var ordem = function (a, b) { return (a.dia + a.hora) < (b.dia + b.hora) ? -1 : 1; };
   g.hoje.sort(ordem); g.proximos.sort(ordem);
   return g;
+}
+
+/* É uma nota do assistente? Pelo prefixo do título ou pela marca na descrição. */
+function ehNota(ev) {
+  var t = String((ev && ev.summary) || '');
+  return t.charAt(0) === PREFIXO_TAREFA || t.charAt(0) === PREFIXO_FACTO ||
+         String((ev && ev.description) || '').indexOf(MARCA_NOTA) >= 0;
+}
+
+/* As notas, juntando o watch dedicado e o que já veio nos calendários normais.
+   Duas fontes de propósito: uma que falhe não esconde a lista. */
+function notasDeEventos(dedicados, porCal, calId) {
+  var vistos = {}, saida = [];
+  function juntar(ev) {
+    if (!ev || ev.status === 'cancelled' || vistos[ev.id]) return;
+    var t = String(ev.summary || '');
+    var c0 = t.charAt(0);
+    if (c0 !== PREFIXO_TAREFA && c0 !== PREFIXO_FACTO) return;   // ✓/✗ = fechada
+    vistos[ev.id] = true;
+    saida.push({ id: ev.id, calId: calId, texto: t.slice(1).trim(),
+      tipo: c0 === PREFIXO_FACTO ? 'facto' : 'tarefa', criadaEm: ev.created || '' });
+  }
+  (dedicados || []).forEach(juntar);
+  Object.keys(porCal || {}).forEach(function (k) { (porCal[k] || []).forEach(juntar); });
+  saida.sort(function (a, b) { return (a.criadaEm || '') < (b.criadaEm || '') ? 1 : -1; });
+  return saida;
 }
 
 /* Um pedaço da descrição à volta da data encontrada, para o aviso ter contexto. */
@@ -412,6 +446,7 @@ function podarTurnos(turnos, max) {
 var mcp = null, sample = null, db = null;
 var calendarios = [];
 var eventosPorCal = {};
+var eventosNota = [];        // do watch dedicado às notas
 var watchesFeitos = {};
 var erroGlobal = null;
 var erroEmail = null;
@@ -629,6 +664,48 @@ function ligarMemoria() {
   db.doc('meta/triagem').onSnapshot(function (snap) { metaTriagem = (snap.exists && snap.data()) || {}; desenhar(); talvezTriar(false); }, aoFalhar('triagem'));
 }
 
+function refrescarNotas() {
+  if (!mcp || !mcp.invalidate) return;
+  mcp.invalidate(CAL, 'list_events').catch(function () {});
+  setTimeout(function () { if (mcp) mcp.invalidate(CAL, 'list_events').catch(function () {}); }, 4000);
+}
+
+/* Uma nota é um evento de dia inteiro, hoje, no calendário principal. */
+function notaNovaCal(texto, tipo, origem) {
+  var cal = calPrincipal();
+  if (!mcp || !cal) return Promise.reject(new Error('Ainda não tenho o calendário. Espera um segundo.'));
+  var hoje = diaISO(new Date());
+  var prefixo = tipo === 'facto' ? PREFIXO_FACTO : PREFIXO_TAREFA;
+  return mcp.callTool(CAL, 'create_event', {
+    calendarId: cal.id,
+    summary: prefixo + ' ' + String(texto).slice(0, 500),
+    allDay: true, timeZone: FUSO,
+    startTime: hoje + 'T00:00:00', endTime: somarDias(hoje, 1) + 'T00:00:00',
+    description: '[' + MARCA_NOTA + '] ' + (tipo === 'facto' ? 'facto' : 'tarefa sem data') + ' · ' + (origem || 'caixa'),
+    notificationLevel: 'NONE'
+  }).then(function (r) {
+    var p = r.payload || {};
+    eventosNota = eventosNota.concat([p]);   // aparece já
+    desenhar(); refrescarNotas();
+    return p.id;
+  });
+}
+
+function notaFecharCal(id, calId, sinal) {
+  var nota = null;
+  eventosNota.concat((eventosPorCal[calId] || [])).forEach(function (ev) { if (ev && ev.id === id) nota = ev; });
+  var titulo = nota ? String(nota.summary || '') : '';
+  var limpo = titulo ? titulo.slice(1).trim() : '';
+  return mcp.callTool(CAL, 'update_event', {
+    eventId: id, calendarId: calId, notificationLevel: 'NONE',
+    summary: sinal + ' ' + limpo
+  }).then(function (r) {
+    var p = r.payload || {};
+    eventosNota = eventosNota.map(function (ev) { return ev && ev.id === id ? p : ev; });
+    desenhar(); refrescarNotas();
+  });
+}
+
 function notaNova(texto, tipo, origem) {
   if (!db) return Promise.reject(new Error('A memória não está disponível nesta vista.'));
   var corpo = { texto: String(texto).slice(0, 500), tipo: tipo === 'facto' ? 'facto' : 'tarefa',
@@ -651,6 +728,27 @@ function marcarIds(caminho, ids, atual) {
 }
 
 /* ═══ e-mail ═══════════════════════════════════════════════════════ */
+
+function seguirNotas() {
+  if (watchesFeitos.notas) return;
+  var cal = calPrincipal();
+  if (!cal) return;
+  watchesFeitos.notas = true;
+  var hoje = diaISO(new Date()), off = offsetLisboa(new Date());
+  mcp.watchTool(CAL, 'list_events', {
+    calendarId: cal.id,
+    startTime: somarDias(hoje, -DIAS_NOTAS_ATRAS) + 'T00:00:00' + off,
+    endTime: somarDias(hoje, 30) + 'T23:59:59' + off,
+    orderBy: 'startTime', pageSize: 250, timeZone: FUSO,
+    fullText: MARCA_NOTA
+  }, function (ev) {
+    if (ev.type === 'error') { memoria = { estado: 'pronta', erro: (ev.error && ev.error.code) || 'unavailable' }; desenhar(); return; }
+    var p = ev.result && ev.result.payload;
+    eventosNota = (p && p.events) || [];
+    memoria = { estado: 'pronta', erro: '' };
+    desenhar();
+  }, { cache: { staleTime: 60000 }, refetchInterval: 600000 });
+}
 
 function seguirEmail() {
   if (watchesFeitos.email) return;
@@ -743,7 +841,7 @@ function agirSugestao(id, accao) {
       return db.doc('sugestoes/' + id).delete();
     });
   } else if (accao === 'tarefa') {
-    passo = notaNova(s.titulo, 'tarefa', 'email').then(function () { return db.doc('sugestoes/' + id).delete(); });
+    passo = notaNovaCal(s.titulo, 'tarefa', 'email').then(function () { return db ? db.doc('sugestoes/' + id).delete() : null; });
   } else if (accao === 'rascunhar') {
     var pedido = { to: [s.para], subject: /^re:/i.test(s.assunto) ? s.assunto : 'Re: ' + s.assunto, body: s.rascunho || '' };
     if (s.ultimaMensagemId) pedido.replyToMessageId = s.ultimaMensagemId;
@@ -797,12 +895,12 @@ function agirAviso(id) {
     .catch(function (e) { delete aTrabalhar[id]; falhas[id] = 'Não consegui guardar: ' + ((e && e.message) || ''); desenhar(); });
 }
 
-function agirNota(id, accao) {
-  if (!db || aTrabalhar[id]) return;
+function agirNota(id, calId, accao) {
+  if (!mcp || aTrabalhar[id]) return;
   aTrabalhar[id] = true; delete falhas[id]; desenhar();
-  (accao === 'apagar' ? notaApagar(id) : notaConcluir(id))
-    .then(function () { delete aTrabalhar[id]; })
-    .catch(function (e) { delete aTrabalhar[id]; falhas[id] = 'Não consegui guardar: ' + ((e && e.message) || ''); desenhar(); });
+  notaFecharCal(id, calId || (calPrincipal() || {}).id, accao === 'apagar' ? '✗' : '✓')
+    .then(function () { delete aTrabalhar[id]; desenhar(); })
+    .catch(function (e) { delete aTrabalhar[id]; falhas[id] = mensagemDeErroMcp(e, 'guardar'); desenhar(); });
 }
 
 /* ═══ desenhar ═════════════════════════════════════════════════════ */
@@ -875,9 +973,13 @@ function linhaHtml(c, comData) {
 }
 
 function tarefaHtml(n) {
+  var d = { nota: n.id, cal: n.calId };
   var miolo = aTrabalhar[n.id] ? '<div class="acoes"><button disabled>a gravar…</button></div>'
-    : '<div class="acoes">' + botao('✓ Feito', 'principal', { nota: n.id, accao: 'concluir' }) + botao('Apagar', 'leve', { nota: n.id, accao: 'apagar' }) + '</div>';
-  return '<article class="cartao nota"><div class="titulo-item">' + esc(n.texto) + '</div><p class="origem">guardado ' + esc(dataCurta(String(n.criadaEm || '').slice(0, 10) || diaISO(new Date()))) + '</p>' + miolo + falhaHtml(n.id) + '</article>';
+    : '<div class="acoes">' + botao('✓ Feito', 'principal', Object.assign({ accao: 'concluir' }, d)) +
+      botao('Tirar', 'leve', Object.assign({ accao: 'apagar' }, d)) + '</div>';
+  var quando = String(n.criadaEm || '').slice(0, 10);
+  return '<article class="cartao nota"><div class="titulo-item">' + esc(n.texto) + '</div>' +
+    (quando ? '<p class="origem">guardado ' + esc(dataCurta(quando)) + '</p>' : '') + miolo + falhaHtml(n.id) + '</article>';
 }
 
 function emailSeccao() {
@@ -904,7 +1006,8 @@ function desenhar() {
   if (!recebeuAgenda) return;
 
   var g = arrumarEventos(eventosPorCal, calendarios, agora, avisosVistos);
-  var tarefas = notas.filter(function (n) { return n.tipo !== 'facto' && !n.feita; });
+  notas = notasDeEventos(eventosNota, eventosPorCal, (calPrincipal() || {}).id);
+  var tarefas = notas.filter(function (n) { return n.tipo !== 'facto'; });
   var factos = notas.filter(function (n) { return n.tipo === 'facto'; });
   var sugAbertas = Object.keys(sugestoes).filter(function (k) { return !tratados[k]; }).length;
   var porTratar = g.aFechar.concat(g.prazos).filter(function (c) { return !tratados[c.id]; }).length + g.avisos.length + sugAbertas + tarefas.length;
@@ -915,12 +1018,13 @@ function desenhar() {
 
   var pendentes = g.aFechar.map(function (c) { return pendenciaHtml(c, 'fechar'); }).concat(g.prazos.map(function (c) { return pendenciaHtml(c, 'prazo'); })).join('');
   var fechados = g.fechados.map(function (c) { return '<div class="fechado"><span class="hora">' + esc(dataCurta(c.dia)) + '</span><span>' + esc(c.titulo.replace(/^[✓✗]\s*/, '')) + '</span><span class="visto">✓</span></div>'; }).join('');
-  var factosHtml = factos.map(function (n) { return '<div class="facto"><span>' + esc(n.texto) + '</span>' + botao('apagar', 'leve', { nota: n.id, accao: 'apagar' }) + '</div>'; }).join('');
+  var factosHtml = factos.map(function (n) { return '<div class="facto"><span>' + esc(n.texto) + '</span>' + botao('esquecer', 'leve', { nota: n.id, cal: n.calId, accao: 'apagar' }) + '</div>'; }).join('');
   var verificar = (sample && db && recebeuEmail && !triagemEmCurso) ? botao('Verificar agora', 'leve', { triar: '1' }) : '';
 
   var html = '';
   if (g.avisos.length) html += seccao('Atenção', g.avisos.length, '<p class="explica">Datas escritas dentro de eventos, que não são a data do evento — prazos escondidos.</p>' + g.avisos.map(avisoHtml).join(''), '');
   html += seccao('A precisar de ti', g.aFechar.length + g.prazos.length, pendentes, 'Nada pendente. Está tudo fechado.');
+  if (recebeuAgenda && memoria.estado === 'aLigar') memoria = { estado: 'pronta', erro: '' };
   var estadoTarefas = estadoMemoria(memoria.estado, memoria.erro, 'Nada sem data. Diz "lembra-me de…" para pôr aqui.');
   html += seccao('Para fazer', estadoTarefas.ok ? tarefas.length : '—', tarefas.map(tarefaHtml).join('') || estadoTarefas.html, '');
   if (mcp && watchesFeitos.email) html += seccao('Do e-mail', sugAbertas, emailSeccao(), 'Nada de novo na caixa de entrada.', verificar);
@@ -941,9 +1045,9 @@ document.getElementById('conteudo').addEventListener('click', function (e) {
   if (d.ev && mcp) agirPendencia(b);
   else if (d.sug) agirSugestao(d.sug, d.accao);
   else if (d.aviso) agirAviso(d.aviso);
-  else if (d.nota) agirNota(d.nota, d.accao);
+  else if (d.nota) agirNota(d.nota, d.cal, d.accao);
   else if (d.triar) talvezTriar(true);
-  else if (d.memoria) carregarMemoria();
+  else if (d.memoria) { watchesFeitos.notas = false; memoria = { estado: 'aLigar', erro: '' }; seguirNotas(); refrescarNotas(); desenhar(); }
 });
 
 /* ═══ a caixa do assistente ════════════════════════════════════════ */
@@ -1018,15 +1122,15 @@ function ferramentas() {
     { name: 'lembrar',
       description: 'Guarda na memória: tipo "tarefa" para coisas a fazer SEM data ("comprar tinteiros"); tipo "facto" para coisas a saber para sempre ("o casamento dos Silva é com a Joana, 912…"). Devolve o id.',
       inputSchema: { type: 'object', properties: { texto: { type: 'string' }, tipo: { type: 'string', enum: ['tarefa', 'facto'] } }, required: ['texto', 'tipo'] },
-      execute: function (input) { return notaNova(input.texto, input.tipo, 'caixa').then(function (id) { return { guardado: true, id: id }; }); } },
+      execute: function (input) { return notaNovaCal(input.texto, input.tipo, 'caixa').then(function (id) { return { guardado: true, id: id }; }); } },
     { name: 'concluir_nota',
       description: 'Marca uma tarefa da memória como feita, pelo id que vem nas instruções.',
       inputSchema: { type: 'object', properties: { id: { type: 'string' } }, required: ['id'] },
-      execute: function (input) { return notaConcluir(String(input.id)).then(function () { return { feita: true }; }); } },
+      execute: function (input) { return notaFecharCal(String(input.id), (calPrincipal() || {}).id, '✓').then(function () { return { feita: true }; }); } },
     { name: 'apagar_nota',
       description: 'Apaga uma nota ou facto da memória, pelo id que vem nas instruções. Usa quando ele corrigir ou disser para esquecer.',
       inputSchema: { type: 'object', properties: { id: { type: 'string' } }, required: ['id'] },
-      execute: function (input) { return notaApagar(String(input.id)).then(function () { return { apagado: true }; }); } },
+      execute: function (input) { return notaFecharCal(String(input.id), (calPrincipal() || {}).id, '✗').then(function () { return { apagado: true }; }); } },
     { name: 'ler_email',
       description: 'Lê uma conversa do Gmail pelo thread_id (vem nas sugestões das instruções ou de procurar_email). Devolve remetente, assunto, texto e anexos.',
       inputSchema: { type: 'object', properties: { thread_id: { type: 'string' } }, required: ['thread_id'] },
@@ -1055,7 +1159,7 @@ function ferramentas() {
         return mcp.callTool(GMAIL, 'create_draft', pedido).then(function (r) { return { rascunho: true, id: r.payload && r.payload.id, aviso: 'Ficou em rascunho, não foi enviado.' }; });
       } }
   ];
-  if (!db) lista = lista.filter(function (t) { return ['lembrar', 'concluir_nota', 'apagar_nota'].indexOf(t.name) < 0; });
+  if (!mcp) lista = lista.filter(function (t) { return ['lembrar', 'concluir_nota', 'apagar_nota'].indexOf(t.name) < 0; });
   return lista.slice(0, maxFerramentas);
 }
 
@@ -1228,7 +1332,7 @@ function arrancar() {
         var nome = (c.summary || c.id).trim();
         return { id: c.id, nome: nome, cor: corDe(nome), principal: ehPrincipal(c.id), contexto: COLABORADORAS.indexOf(semAcentos(nome).trim()) >= 0 };
       });
-      erroGlobal = null; calendarios.forEach(seguirCalendario); desenhar();
+      erroGlobal = null; calendarios.forEach(seguirCalendario); seguirNotas(); desenhar();
     }, { cache: { staleTime: 300000 }, refetchInterval: 1800000 });
     seguirEmail();
   }, function () { erroGlobal = { code: 'capability_disabled' }; desenhar(); });

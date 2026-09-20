@@ -74,17 +74,24 @@ perguntar por ele.
 
 ## Memória
 
-O painel (`assistente/painel.html`) guarda uma memória própria, na base de dados
-do artefacto:
+A memória vive no **Google Calendar**, não numa base de dados à parte — é o
+único sítio que responde em todas as vistas, e assim ele vê a lista na própria
+agenda. Cada nota é um evento de dia inteiro no calendário principal, criado no
+dia em que foi guardada, com `[nota-assistente]` na descrição e um prefixo no
+título que diz o que é:
 
-- **Factos** — coisas a saber para sempre: "o casamento dos Silva é com a
-  Joana, 912…". Ficam em "O que sei".
-- **Tarefas sem data** — "comprar tinteiros". Ficam em "Para fazer".
+| Prefixo | O que é | Onde aparece |
+|---|---|---|
+| `◻` | Tarefa sem data: "comprar tinteiros" | "Para fazer" |
+| `★` | Facto a saber para sempre: "o casamento dos Silva é com a Joana, 912…" | "O que sei" |
+| `✓` / `✗` | Já fechada | em lado nenhum |
 
-Regra: **com data vai para a agenda, sem data vai para a memória.** "Lembra-te
-que…" é um facto. Numa sessão que não seja o painel, a memória lê-se e
-escreve-se com a ferramenta de dados do artefacto
-(`https://claude.ai/artifact/BSWtnGFYsQ1fWg6L4PkWtb`, coleção `notas`).
+Regra: **com data vai para a agenda como evento normal, sem data vai para a
+memória com `◻`.** "Lembra-te que…" é um facto, com `★`.
+
+Estes eventos não são compromissos: nunca entram em "Hoje", nem em "Próximas
+duas semanas", nem geram pendências. Fechar uma nota é trocar o prefixo por `✓`
+(feita) ou `✗` (já não interessa) — nunca apagar o evento.
 
 ## E-mail
 
