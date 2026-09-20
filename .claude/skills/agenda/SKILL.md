@@ -76,16 +76,20 @@ perguntar por ele.
 
 A memória vive no **Google Calendar**, não numa base de dados à parte — é o
 único sítio que responde em todas as vistas, e assim ele vê a lista na própria
-agenda. Cada nota é um evento de dia inteiro no calendário principal, **sempre
-em 1 de janeiro de 2010** — uma gaveta, para que uma coisa sem data não ocupe
-nenhum dia real. Leva `[nota-assistente]` na descrição, fica marcada como livre,
-e o prefixo do título diz o que é:
+agenda. Cada nota é um evento de dia inteiro no calendário principal, marcado
+como livre e com `[nota-assistente]` na descrição. O prefixo do título diz o que
+é, e o tipo decide onde fica:
 
-| Prefixo | O que é | Onde aparece |
-|---|---|---|
-| `◻` | Tarefa sem data: "comprar tinteiros" | "Para fazer" |
-| `★` | Facto a saber para sempre: "o casamento dos Silva é com a Joana, 912…" | "O que sei" |
-| `✓` / `✗` | Já fechada | em lado nenhum |
+| Prefixo | O que é | Onde vive | Onde aparece |
+|---|---|---|---|
+| `◻` | Tarefa sem data: "comprar tinteiros" | Repete-se **todos os dias** desde o dia em que foi guardada (`RRULE:FREQ=DAILY`, até um ano), para ficar à vista no widget do calendário | "Para fazer" |
+| `★` | Facto a saber para sempre: "o casamento dos Silva é com a Joana, 912…" | Numa gaveta, 1 de janeiro de 2010 — um facto não é para fazer, não ocupa dia nenhum | "O que sei" |
+| `✓` / `✗` | Já fechada | Um registo de um dia só, no dia em que foi fechada | em lado nenhum |
+
+**Fechar uma tarefa é apagar a série e criar o registo**, não editar a
+ocorrência de hoje: `delete_event` no evento-mestre (o `recurringEventId` das
+ocorrências, nunca o `id` da ocorrência) e depois `create_event` com `✓` ou `✗`
+no dia de hoje. Editar só a ocorrência deixaria a tarefa a aparecer amanhã.
 
 Regra: **com data vai para a agenda como evento normal, sem data vai para a
 memória com `◻`.** "Lembra-te que…" é um facto, com `★`.

@@ -195,9 +195,13 @@ var MAX_NOTAS_NO_PROMPT = 40;
 var MARCA_NOTA = 'nota-assistente';
 var PREFIXO_TAREFA = '\u25FB';   // ◻
 var PREFIXO_FACTO = '\u2605';    // ★
-// Todas as notas vivem no mesmo dia, lá atrás: uma gaveta. Assim não ocupam
-// nenhum dia real da agenda — uma tarefa sem data não é uma tarefa para hoje.
-var DIA_NOTAS = '2010-01-01';
+// Uma TAREFA sem data repete-se todos os dias, a partir do dia em que foi
+// guardada: fica à vista no widget do calendário até ser fechada. Fechá-la é
+// apagar a série e deixar um ✓ (ou ✗) no dia em que foi mesmo fechada.
+// Um FACTO não é para fazer, por isso não aparece em dia nenhum: vai para uma
+// gaveta lá atrás.
+var DIA_GAVETA = '2010-01-01';
+var DIAS_REPETICAO = 365;
 
 var COLABORADORAS = ['flavia', 'laura', 'catarina'];
 var CONSULTA_EMAIL = 'in:inbox newer_than:3d -from:me -category:promotions -category:social';
@@ -387,12 +391,16 @@ function ehNota(ev) {
 function notasDeEventos(dedicados, porCal, calId) {
   var vistos = {}, saida = [];
   function juntar(ev) {
-    if (!ev || ev.status === 'cancelled' || vistos[ev.id]) return;
+    if (!ev || ev.status === 'cancelled') return;
     var t = String(ev.summary || '');
     var c0 = t.charAt(0);
-    if (c0 !== PREFIXO_TAREFA && c0 !== PREFIXO_FACTO) return;   // ✓/✗ = fechada
-    vistos[ev.id] = true;
-    saida.push({ id: ev.id, calId: calId, texto: t.slice(1).trim(),
+    if (c0 !== PREFIXO_TAREFA && c0 !== PREFIXO_FACTO) return;   // ✓/✗ = já fechada
+    // Uma tarefa repetida chega uma vez por dia: é o evento-mestre que conta,
+    // e é ele que se apaga ao fechar.
+    var chave = ev.recurringEventId || ev.id;
+    if (vistos[chave]) return;
+    vistos[chave] = true;
+    saida.push({ id: chave, calId: calId, texto: t.slice(1).trim(),
       tipo: c0 === PREFIXO_FACTO ? 'facto' : 'tarefa', criadaEm: ev.created || '' });
   }
   (dedicados || []).forEach(juntar);
@@ -448,7 +456,7 @@ function podarTurnos(turnos, max) {
 var mcp = null, sample = null, db = null;
 var calendarios = [];
 var eventosPorCal = {};
-var eventosNota = [];        // do watch dedicado às notas
+var notasCruas = [];         // eventos-nota como vêm do calendário
 var watchesFeitos = {};
 var erroGlobal = null;
 var erroEmail = null;
@@ -672,40 +680,65 @@ function refrescarNotas() {
   setTimeout(function () { if (mcp) mcp.invalidate(CAL, 'list_events').catch(function () {}); }, 4000);
 }
 
-/* Uma nota é um evento de dia inteiro, hoje, no calendário principal. */
+function corpoNota(cal, prefixo, texto, tipo, origem) {
+  return {
+    calendarId: cal.id,
+    summary: prefixo + ' ' + String(texto).slice(0, 500),
+    allDay: true, timeZone: FUSO, availability: 'AVAILABILITY_FREE',
+    description: '[' + MARCA_NOTA + '] ' + tipo + ' · ' + (origem || 'caixa'),
+    notificationLevel: 'NONE'
+  };
+}
+
+/* Tarefa: repete-se todos os dias até ser fechada. Facto: fica na gaveta. */
 function notaNovaCal(texto, tipo, origem) {
   var cal = calPrincipal();
   if (!mcp || !cal) return Promise.reject(new Error('Ainda não tenho o calendário. Espera um segundo.'));
-  var prefixo = tipo === 'facto' ? PREFIXO_FACTO : PREFIXO_TAREFA;
-  return mcp.callTool(CAL, 'create_event', {
-    calendarId: cal.id,
-    summary: prefixo + ' ' + String(texto).slice(0, 500),
-    allDay: true, timeZone: FUSO,
-    startTime: DIA_NOTAS + 'T00:00:00', endTime: somarDias(DIA_NOTAS, 1) + 'T00:00:00',
-    availability: 'AVAILABILITY_FREE',
-    description: '[' + MARCA_NOTA + '] ' + (tipo === 'facto' ? 'facto' : 'tarefa sem data') + ' · ' + (origem || 'caixa'),
-    notificationLevel: 'NONE'
-  }).then(function (r) {
+  var facto = tipo === 'facto';
+  var hoje = diaISO(new Date());
+  var args = corpoNota(cal, facto ? PREFIXO_FACTO : PREFIXO_TAREFA, texto,
+    facto ? 'facto' : 'tarefa sem data', origem);
+
+  if (facto) {
+    args.startTime = DIA_GAVETA + 'T00:00:00';
+    args.endTime = somarDias(DIA_GAVETA, 1) + 'T00:00:00';
+  } else {
+    args.startTime = hoje + 'T00:00:00';
+    args.endTime = somarDias(hoje, 1) + 'T00:00:00';
+    args.recurrenceData = ['RRULE:FREQ=DAILY;UNTIL=' + somarDias(hoje, DIAS_REPETICAO).replace(/-/g, '')];
+  }
+
+  return mcp.callTool(CAL, 'create_event', args).then(function (r) {
     var p = r.payload || {};
-    eventosNota = eventosNota.concat([p]);   // aparece já, sem esperar pelo Google
+    notasCruas = notasCruas.concat([p]);   // aparece já, sem esperar pelo Google
     desenhar(); refrescarNotas();
     return p.id;
   });
 }
 
-function notaFecharCal(id, calId, sinal) {
-  var nota = null;
-  eventosNota.concat((eventosPorCal[calId] || [])).forEach(function (ev) { if (ev && ev.id === id) nota = ev; });
-  var titulo = nota ? String(nota.summary || '') : '';
-  var limpo = titulo ? titulo.slice(1).trim() : '';
-  return mcp.callTool(CAL, 'update_event', {
-    eventId: id, calendarId: calId, notificationLevel: 'NONE',
-    summary: sinal + ' ' + limpo
-  }).then(function (r) {
-    var p = r.payload || {};
-    eventosNota = eventosNota.map(function (ev) { return ev && ev.id === id ? p : ev; });
-    desenhar(); refrescarNotas();
-  });
+/* Fechar apaga a série inteira e deixa um registo no dia em que foi fechada —
+   assim o ✓ fica no dia certo, e os dias anteriores não ficam cheios dele. */
+function notaFecharCal(id, calId, sinal, texto) {
+  var cal = (calId ? calPorNome(calId) : null) || calPrincipal();
+  var limpo = texto;
+  if (!limpo) {
+    notasCruas.forEach(function (ev) {
+      if (ev && (ev.recurringEventId || ev.id) === id) limpo = String(ev.summary || '').slice(1).trim();
+    });
+  }
+  var hoje = diaISO(new Date());
+
+  return mcp.callTool(CAL, 'delete_event', { eventId: id, calendarId: cal.id, notificationLevel: 'NONE' })
+    .then(function () {
+      var registo = corpoNota(cal, sinal, limpo || '(sem texto)', 'fechada', 'painel');
+      registo.startTime = hoje + 'T00:00:00';
+      registo.endTime = somarDias(hoje, 1) + 'T00:00:00';
+      return mcp.callTool(CAL, 'create_event', registo).catch(function () { /* o registo é um extra */ });
+    })
+    .then(function () {
+      notasCruas = notasCruas.filter(function (ev) { return ev && (ev.recurringEventId || ev.id) !== id; });
+      desenhar(); refrescarNotas();
+    });
 }
 
 function notaNova(texto, tipo, origem) {
@@ -736,37 +769,51 @@ function seguirNotas() {
   var cal = calPrincipal();
   if (!cal) return;
   watchesFeitos.notas = true;
-  var off = offsetLisboa(new Date());
-  var pedido = {
-    calendarId: cal.id,
-    startTime: somarDias(DIA_NOTAS, -1) + 'T00:00:00' + off,
-    endTime: somarDias(diaISO(new Date()), 30) + 'T23:59:59' + off,
-    orderBy: 'startTime', pageSize: 250, timeZone: FUSO,
-    fullText: MARCA_NOTA
-  };
+  var hoje = diaISO(new Date()), off = offsetLisboa(new Date());
 
-  function receber(eventos) {
-    eventosNota = eventos || [];
+  // Dois pedidos estreitos em vez de um largo: os factos estão todos num dia
+  // lá atrás, e de cada tarefa repetida só interessa a ocorrência de hoje.
+  var alvos = {
+    gaveta: { de: somarDias(DIA_GAVETA, -1), ate: somarDias(DIA_GAVETA, 1) },
+    hoje: { de: hoje, ate: hoje }
+  };
+  var recebido = { gaveta: null, hoje: null };
+
+  function juntar() {
+    var lista = [];
+    Object.keys(recebido).forEach(function (k) { if (recebido[k]) lista = lista.concat(recebido[k]); });
+    notasCruas = lista;
     memoria = { estado: 'pronta', erro: '' };
     desenhar();
   }
 
-  // Duas fontes para a mesma coisa: o watch, e uma leitura direta. Uma que
-  // não entregue já não deixa a lista vazia — foi o que escondeu a nota antes.
-  mcp.watchTool(CAL, 'list_events', pedido, function (ev) {
-    if (ev.type === 'error') {
-      if (!eventosNota.length) { memoria = { estado: 'pronta', erro: (ev.error && ev.error.code) || 'unavailable' }; desenhar(); }
-      return;
-    }
-    var p = ev.result && ev.result.payload;
-    receber((p && p.events) || []);
-  }, { cache: { staleTime: 60000 }, refetchInterval: 600000 });
+  Object.keys(alvos).forEach(function (qual) {
+    var a = alvos[qual];
+    var pedido = {
+      calendarId: cal.id,
+      startTime: a.de + 'T00:00:00' + off,
+      endTime: a.ate + 'T23:59:59' + off,
+      orderBy: 'startTime', pageSize: 250, timeZone: FUSO,
+      fullText: MARCA_NOTA
+    };
 
-  mcp.callTool(CAL, 'list_events', pedido, { cache: { refresh: true } })
-    .then(function (r) { if (!eventosNota.length) receber(((r.payload || {}).events) || []); })
-    .catch(function (e) {
-      if (!eventosNota.length) { memoria = { estado: 'pronta', erro: (e && e.code) || 'unavailable' }; desenhar(); }
-    });
+    // Duas fontes para o mesmo: o watch e uma leitura direta. Uma que não
+    // entregue já não deixa a lista vazia.
+    mcp.watchTool(CAL, 'list_events', pedido, function (ev) {
+      if (ev.type === 'error') {
+        if (!recebido[qual]) { memoria = { estado: 'pronta', erro: (ev.error && ev.error.code) || 'unavailable' }; desenhar(); }
+        return;
+      }
+      recebido[qual] = ((ev.result && ev.result.payload) || {}).events || [];
+      juntar();
+    }, { cache: { staleTime: 60000 }, refetchInterval: 600000 });
+
+    mcp.callTool(CAL, 'list_events', pedido, { cache: { refresh: true } })
+      .then(function (r) { if (!recebido[qual]) { recebido[qual] = ((r.payload || {}).events) || []; juntar(); } })
+      .catch(function (e) {
+        if (!recebido[qual]) { memoria = { estado: 'pronta', erro: (e && e.code) || 'unavailable' }; desenhar(); }
+      });
+  });
 }
 
 function seguirEmail() {
@@ -914,10 +961,10 @@ function agirAviso(id) {
     .catch(function (e) { delete aTrabalhar[id]; falhas[id] = 'Não consegui guardar: ' + ((e && e.message) || ''); desenhar(); });
 }
 
-function agirNota(id, calId, accao) {
+function agirNota(id, calId, accao, texto) {
   if (!mcp || aTrabalhar[id]) return;
   aTrabalhar[id] = true; delete falhas[id]; desenhar();
-  notaFecharCal(id, calId || (calPrincipal() || {}).id, accao === 'apagar' ? '✗' : '✓')
+  notaFecharCal(id, calId, accao === 'apagar' ? '✗' : '✓', texto)
     .then(function () { delete aTrabalhar[id]; desenhar(); })
     .catch(function (e) { delete aTrabalhar[id]; falhas[id] = mensagemDeErroMcp(e, 'guardar'); desenhar(); });
 }
@@ -992,7 +1039,7 @@ function linhaHtml(c, comData) {
 }
 
 function tarefaHtml(n) {
-  var d = { nota: n.id, cal: n.calId };
+  var d = { nota: n.id, cal: n.calId, texto: n.texto };
   var miolo = aTrabalhar[n.id] ? '<div class="acoes"><button disabled>a gravar…</button></div>'
     : '<div class="acoes">' + botao('✓ Feito', 'principal', Object.assign({ accao: 'concluir' }, d)) +
       botao('Tirar', 'leve', Object.assign({ accao: 'apagar' }, d)) + '</div>';
@@ -1025,7 +1072,8 @@ function desenhar() {
   if (!recebeuAgenda) return;
 
   var g = arrumarEventos(eventosPorCal, calendarios, agora, avisosVistos);
-  notas = notasDeEventos(eventosNota, eventosPorCal, (calPrincipal() || {}).id);
+  notas = notasDeEventos(notasCruas, eventosPorCal, (calPrincipal() || {}).id);
+  notas.forEach(function (n) { if (!n.calId) n.calId = (calPrincipal() || {}).id; });
   var tarefas = notas.filter(function (n) { return n.tipo !== 'facto'; });
   var factos = notas.filter(function (n) { return n.tipo === 'facto'; });
   var sugAbertas = Object.keys(sugestoes).filter(function (k) { return !tratados[k]; }).length;
@@ -1037,7 +1085,7 @@ function desenhar() {
 
   var pendentes = g.aFechar.map(function (c) { return pendenciaHtml(c, 'fechar'); }).concat(g.prazos.map(function (c) { return pendenciaHtml(c, 'prazo'); })).join('');
   var fechados = g.fechados.map(function (c) { return '<div class="fechado"><span class="hora">' + esc(dataCurta(c.dia)) + '</span><span>' + esc(c.titulo.replace(/^[✓✗]\s*/, '')) + '</span><span class="visto">✓</span></div>'; }).join('');
-  var factosHtml = factos.map(function (n) { return '<div class="facto"><span>' + esc(n.texto) + '</span>' + botao('esquecer', 'leve', { nota: n.id, cal: n.calId, accao: 'apagar' }) + '</div>'; }).join('');
+  var factosHtml = factos.map(function (n) { return '<div class="facto"><span>' + esc(n.texto) + '</span>' + botao('esquecer', 'leve', { nota: n.id, cal: n.calId, texto: n.texto, accao: 'apagar' }) + '</div>'; }).join('');
   var verificar = (sample && db && recebeuEmail && !triagemEmCurso) ? botao('Verificar agora', 'leve', { triar: '1' }) : '';
 
   var html = '';
@@ -1064,7 +1112,7 @@ document.getElementById('conteudo').addEventListener('click', function (e) {
   if (d.ev && mcp) agirPendencia(b);
   else if (d.sug) agirSugestao(d.sug, d.accao);
   else if (d.aviso) agirAviso(d.aviso);
-  else if (d.nota) agirNota(d.nota, d.cal, d.accao);
+  else if (d.nota) agirNota(d.nota, d.cal, d.accao, d.texto);
   else if (d.triar) talvezTriar(true);
   else if (d.memoria) { watchesFeitos.notas = false; memoria = { estado: 'aLigar', erro: '' }; seguirNotas(); refrescarNotas(); desenhar(); }
 });
@@ -1145,11 +1193,11 @@ function ferramentas() {
     { name: 'concluir_nota',
       description: 'Marca uma tarefa da memória como feita, pelo id que vem nas instruções.',
       inputSchema: { type: 'object', properties: { id: { type: 'string' } }, required: ['id'] },
-      execute: function (input) { return notaFecharCal(String(input.id), (calPrincipal() || {}).id, '✓').then(function () { return { feita: true }; }); } },
+      execute: function (input) { return notaFecharCal(String(input.id), '', '✓', '').then(function () { return { feita: true }; }); } },
     { name: 'apagar_nota',
       description: 'Apaga uma nota ou facto da memória, pelo id que vem nas instruções. Usa quando ele corrigir ou disser para esquecer.',
       inputSchema: { type: 'object', properties: { id: { type: 'string' } }, required: ['id'] },
-      execute: function (input) { return notaFecharCal(String(input.id), (calPrincipal() || {}).id, '✗').then(function () { return { apagado: true }; }); } },
+      execute: function (input) { return notaFecharCal(String(input.id), '', '✗', '').then(function () { return { apagado: true }; }); } },
     { name: 'ler_email',
       description: 'Lê uma conversa do Gmail pelo thread_id (vem nas sugestões das instruções ou de procurar_email). Devolve remetente, assunto, texto e anexos.',
       inputSchema: { type: 'object', properties: { thread_id: { type: 'string' } }, required: ['thread_id'] },

@@ -15,7 +15,7 @@ const P = new Function('document', 'window', js + `
   return { semAcentos, ehTarefa, jaFechado, ehPrincipal, somarDias, difDias, diaISO, datasNoTexto,
            abrangeDia, jaPassou, diaDoExtremo, arrumarEventos, montarLoteTriagem, podarTurnos,
            trechoComData, somarMinutos, somarDiasRelogio, relogioDe, COLABORADORAS, MAX_THREADS,
-           estadoMemoria, ehNota, notasDeEventos, MARCA_NOTA, PREFIXO_TAREFA, PREFIXO_FACTO, DIA_NOTAS };
+           estadoMemoria, ehNota, notasDeEventos, MARCA_NOTA, PREFIXO_TAREFA, PREFIXO_FACTO, DIA_GAVETA, DIAS_REPETICAO };
 `)(documento, janela);
 
 const HOJE = '2026-09-20';
@@ -236,16 +236,45 @@ test('notas: nunca aparecem como compromissos da agenda', () => {
   assert.equal(g.aFechar.length + g.prazos.length + g.proximos.length, 0);
 });
 
-test('notas: a gaveta fica fora de qualquer dia real da agenda', () => {
-  // Uma tarefa sem data não pode parecer uma tarefa para hoje.
-  assert.ok(P.DIA_NOTAS < '2020-01-01', 'a gaveta tem de estar longe do presente');
-  const naGaveta = { id: 'n1', status: 'confirmed',
-    summary: P.PREFIXO_TAREFA + ' Ligar ao António',
-    description: '[' + P.MARCA_NOTA + '] tarefa sem data',
-    start: { date: P.DIA_NOTAS }, end: { date: '2010-01-02' } };
+test('notas: um facto fica na gaveta, fora de qualquer dia real', () => {
+  assert.ok(P.DIA_GAVETA < '2020-01-01', 'a gaveta tem de estar longe do presente');
+  const facto = { id: 'f1', status: 'confirmed',
+    summary: P.PREFIXO_FACTO + ' O casamento dos Silva é com a Joana',
+    description: '[' + P.MARCA_NOTA + '] facto',
+    start: { date: P.DIA_GAVETA }, end: { date: '2010-01-02' } };
   const cals = [{ id: 'p@x', nome: 'Principal', cor: '#000', principal: true, contexto: false }];
-  const g = P.arrumarEventos({ 'p@x': [naGaveta] }, cals, new Date('2026-09-20T10:00:00+01:00'), {});
+  const g = P.arrumarEventos({ 'p@x': [facto] }, cals, new Date('2026-09-20T10:00:00+01:00'), {});
   assert.equal(g.hoje.length + g.proximos.length + g.aFechar.length + g.prazos.length + g.fechados.length, 0);
-  // E continua a ser lida como nota.
-  assert.equal(P.notasDeEventos([naGaveta], {}, 'p@x').length, 1);
+  assert.equal(P.notasDeEventos([facto], {}, 'p@x')[0].tipo, 'facto');
+});
+
+test('notas: uma tarefa repetida conta uma vez, pelo evento-mestre', () => {
+  // O Google devolve uma ocorrência por dia; a lista não pode mostrar 30 linhas
+  // iguais, e fechar tem de apagar a série, não o dia de hoje.
+  const ocorrencia = (dia) => ({
+    id: 'mestre_' + dia.replace(/-/g, ''), recurringEventId: 'mestre', status: 'confirmed',
+    summary: P.PREFIXO_TAREFA + ' Ligar ao António dos Simuladores',
+    description: '[' + P.MARCA_NOTA + '] tarefa sem data',
+    start: { date: dia }, end: { date: '2026-09-30' }, created: '2026-09-20T11:30:00Z' });
+
+  const r = P.notasDeEventos([ocorrencia('2026-09-20'), ocorrencia('2026-09-21'), ocorrencia('2026-09-22')], {}, 'p@x');
+  assert.equal(r.length, 1, 'três ocorrências, uma tarefa');
+  assert.equal(r[0].id, 'mestre', 'é o mestre que se fecha, não a ocorrência do dia');
+  assert.equal(r[0].texto, 'Ligar ao António dos Simuladores');
+
+  // E uma tarefa repetida nunca ocupa um dia da agenda.
+  const cals = [{ id: 'p@x', nome: 'Principal', cor: '#000', principal: true, contexto: false }];
+  const g = P.arrumarEventos({ 'p@x': [ocorrencia('2026-09-20')] }, cals, new Date('2026-09-20T10:00:00+01:00'), {});
+  assert.equal(g.hoje.length, 0);
+});
+
+test('notas: uma fechada sai da lista e fica como registo', () => {
+  const feita = { id: 'r1', status: 'confirmed', summary: '✓ Ligar ao António dos Simuladores',
+    description: '[' + P.MARCA_NOTA + '] fechada', start: { date: '2026-09-22' }, end: { date: '2026-09-23' } };
+  assert.equal(P.notasDeEventos([feita], {}, 'p@x').length, 0, 'já não é uma nota aberta');
+  assert.equal(P.ehNota(feita), true, 'mas continua a ser excluída da agenda');
+});
+
+test('a repetição tem fim: uma tarefa esquecida não fica eterna', () => {
+  assert.ok(P.DIAS_REPETICAO > 30 && P.DIAS_REPETICAO <= 366, 'repete-se o suficiente sem ser para sempre');
 });
