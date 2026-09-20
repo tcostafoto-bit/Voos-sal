@@ -72,7 +72,26 @@ O estado vive no **título do evento**, para ser visível no Google Calendar:
 Um evento cujo título já comece por `✓` ou `✗` está fechado: não voltes a
 perguntar por ele.
 
+## Memória
+
+O painel (`assistente/painel.html`) guarda uma memória própria, na base de dados
+do artefacto:
+
+- **Factos** — coisas a saber para sempre: "o casamento dos Silva é com a
+  Joana, 912…". Ficam em "O que sei".
+- **Tarefas sem data** — "comprar tinteiros". Ficam em "Para fazer".
+
+Regra: **com data vai para a agenda, sem data vai para a memória.** "Lembra-te
+que…" é um facto. Numa sessão que não seja o painel, a memória lê-se e
+escreve-se com a ferramenta de dados do artefacto
+(`https://claude.ai/artifact/BSWtnGFYsQ1fWg6L4PkWtb`, coleção `notas`).
+
 ## E-mail
+
+O painel faz a triagem da caixa de entrada sozinho (uma vez por 4 horas, ou
+quando ele carrega em "Verificar agora") e guarda as sugestões na coleção
+`sugestoes` do mesmo artefacto. Uma conversa já analisada fica em
+`meta/email_visto` e não se volta a analisar.
 
 Podes ler o Gmail e deixar respostas **em rascunho**. Nunca envies nada.
 

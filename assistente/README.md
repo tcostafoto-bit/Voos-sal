@@ -1,38 +1,52 @@
 # Assistente pessoal
 
-Liga a agenda e o e-mail a um chat do Claude. Escreves uma frase, ele atualiza o
-Google Calendar. De manhã, mostra o dia e pergunta o que ficou por fechar.
+Um assistente ligado à agenda, ao e-mail e a uma memória própria. Escreves ou
+ditas uma frase, ele age. Lê a caixa de entrada e propõe o que fazer. Lembra-se
+do que lhe disseres. Avisa de prazos escondidos.
 
 Corre dentro da subscrição do Claude — **não há conta da API ao token**.
 
-## As três peças
+## O painel
 
-**1. O painel** — [claude.ai/artifact/BSWtnGFYsQ1fWg6L4PkWtb](https://claude.ai/artifact/BSWtnGFYsQ1fWg6L4PkWtb)
-
-Lê o Google Calendar **ao vivo**, com a tua própria ligação, e mostra:
+[claude.ai/artifact/BSWtnGFYsQ1fWg6L4PkWtb](https://claude.ai/artifact/BSWtnGFYsQ1fWg6L4PkWtb)
+— o código está em [painel.html](./painel.html). Está afixado na barra lateral
+do claude.ai.
 
 | Secção | O que traz |
 |---|---|
-| A precisar de ti | Tarefas que passaram sem fechar, e prazos na próxima semana |
-| Hoje | Tudo o que ocupa o dia — incluindo eventos de vários dias a meio |
-| Fechou sozinho | Compromissos passados, dados por feitos sem perguntar nada |
-| Próximas duas semanas | O que aí vem, sem repetir o que já está em destaque |
+| **A caixa** | Escreves ou ditas. Cria, altera, adia, fecha, guarda na memória, lê e rascunha e-mail, responde a perguntas |
+| Atenção | Datas escritas *dentro* de eventos, que não são a data do evento — prazos escondidos (ex.: "tarifa válida até 30/09") |
+| A precisar de ti | Tarefas que passaram sem fechar, e prazos na próxima semana. Botões: ✓ Concluído · Tirar da lista · Adiar 1 semana |
+| Do e-mail | A caixa de entrada triada: compromissos a agendar, prazos, e-mails que esperam resposta com o rascunho já escrito. Botões: Adicionar à agenda · Rascunhar resposta · Ignorar |
+| Para fazer | Tarefas sem data ("comprar tinteiros"), com ✓ |
+| Hoje · Próximas duas semanas | A agenda, incluindo a das colaboradoras |
+| Fechou sozinho | Compromissos passados, dados por feitos sem perguntar |
+| O que sei | Os factos que guardou. Apagas o que já não for verdade |
 
-Cada pendência tem dois botões: **✓ Concluído** e **Tirar da lista**. Carregas, e
-ele escreve no Google Calendar na hora. Põe no ecrã principal do telemóvel e fica
-como uma app.
+### A caixa
 
-No topo tem uma **caixa para falar com o assistente**: escreves (ou ditas, no
-microfone) e ele age — cria, altera, adia, fecha, responde a perguntas sobre a
-agenda. Não precisas de sair do painel nem de abrir um chat.
-
-- *amanhã às 10 dentista* → evento criado no principal
+- *amanhã às 10 dentista* → evento no principal
 - *marcar teetime na Aroeira até sexta* → tarefa de dia inteiro na sexta
-- *o casamento dos Silva passou para 12 de outubro* → procura e muda a data
+- *lembra-me de comprar tinteiros* → "Para fazer", sem data
+- *lembra-te que o casamento dos Silva é com a Joana, 912 000 000* → "O que sei"
+- *trata do e-mail da candidata* → lê a conversa e deixa a resposta em rascunho
 - *o que tenho na quinta?* → responde
 
-Responde em 1 a 3 segundos. Quando não perceber bem, cada resposta traz um botão
-**Pensa melhor** que repete a mesma frase com o modelo que raciocina mais.
+Responde em 1 a 3 segundos. Cada resposta traz **Pensa melhor**, que repete a
+mesma frase com o modelo que raciocina mais.
+
+### O e-mail
+
+De 4 em 4 horas (ou quando carregas em **Verificar agora**) lê as conversas
+novas dos últimos 3 dias e classifica cada uma: compromisso, prazo, espera
+resposta, ou nada. Só as que têm alguma coisa para ti aparecem. Uma conversa
+analisada não volta a ser analisada.
+
+Nunca envia e-mail. As respostas ficam em rascunho no Gmail, para reveres.
+
+O conteúdo dos e-mails é tratado como informação, nunca como ordens: a triagem
+corre sem ferramentas e nada chega à agenda ou ao Gmail sem carregares num
+botão.
 
 ### Que calendários
 
@@ -40,47 +54,16 @@ Responde em 1 a 3 segundos. Quando não perceber bem, cada resposta traz um bot�
 |---|---|
 | **Principal** (`tcosta.foto@gmail.com`) | Onde o assistente escreve por omissão |
 | **Teus** (Casamentos Centrimagem, Ferias centrimagem, Torneios Golfe, Família) | Geram pendências e aceitam escrita |
-| **Colaboradoras** (Flavia, Laura, Catarina) | Só se veem. Nunca geram pendências nem aceitam escrita |
+| **Colaboradoras** (Flavia, Laura, Catarina) | Só se veem. Nunca geram pendências nem aceitam escrita — a recusa está na função que escreve, não só nas instruções |
 | **Feriados** | Fora do painel |
 
-A recusa de escrever nos calendários das colaboradoras não está só nas
-instruções — está na função que executa a escrita, que rejeita antes de chegar
-ao Google. Uma instrução em texto é um pedido; isto é uma porta fechada.
+## Onde vive cada coisa
 
-**2. A rotina da manhã** — o texto está em [rotina-diaria.md](./rotina-diaria.md).
-
-Dispara todos os dias, lê a agenda e o Gmail, e manda-te uma mensagem com o dia e
-as perguntas numeradas. Chega como notificação no telemóvel.
-
-**3. As regras** — [../.claude/skills/agenda/SKILL.md](../.claude/skills/agenda/SKILL.md)
-
-Que calendário serve cada assunto, o que é tarefa e o que é compromisso, e a
-convenção do `✓`. Carrega-se sozinha em sessões do Claude Code neste repositório.
-
-### Atalho no telemóvel
-
-O painel só funciona **dentro do Claude**: é de lá que vem a ligação ao teu
-Google Calendar. Aberto como página solta, fica sem dados e sem botões.
-
-Duas formas de o ter à mão:
-
-- **Barra lateral do claude.ai** — está afixado. Um toque, em qualquer
-  dispositivo onde tenhas sessão iniciada.
-- **Ecrã principal do telemóvel** — abre o link do painel no Safari (iPhone) ou
-  no Chrome (Android), e usa *Partilhar → Adicionar ao ecrã principal*. O atalho
-  abre o Claude já no painel.
-
-## Como o estado é guardado
-
-No **título do evento**, no Google Calendar:
-
-- `✓ Marcar teetime` — feito
-- `✗ Marcar teetime` — não feito, fora da lista
-- sem prefixo — ainda aberto
-
-Nada vive numa base de dados à parte. Abres o Google Calendar no telemóvel e vês
-o mesmo que o painel vê. Se tudo isto desaparecer amanhã, a tua agenda continua
-certa e legível.
+| | Onde | Porquê |
+|---|---|---|
+| Estado das pendências | No **título do evento** (`✓` feito, `✗` fora) | Vês no próprio Google Calendar |
+| Memória, sugestões do e-mail, o que já foi visto | Na **base de dados do painel** | Sobrevive a reloads e a novas versões; lê-se de qualquer sessão do Claude |
+| Segredos | Nenhuns | Tudo corre com a tua ligação, dentro do Claude |
 
 ## Compromissos e tarefas
 
