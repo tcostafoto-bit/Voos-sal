@@ -184,4 +184,13 @@ test('uma secção da memória nunca desaparece — diz sempre em que pé está'
 
   // Em nenhum caso devolve vazio: haveria sempre alguma coisa a mostrar.
   for (const r of [aLigar, sem, falhou, bem]) assert.ok(r.html.length > 10);
+
+  // Todo o estado sem saída automática traz a maneira de sair dele.
+  for (const r of [sem, falhou]) assert.ok(r.html.includes('data-memoria'), 'falta o Tentar de novo');
+  assert.ok(!bem.html.includes('data-memoria'));
+
+  // O caso da captura do Tiago: ficou preso "a abrir" e sem saída.
+  const preso = P.estadoMemoria('pronta', 'sem_resposta', 'vazio normal');
+  assert.ok(preso.html.includes('não respondeu a tempo'), preso.html);
+  assert.ok(preso.html.includes('data-memoria'));
 });

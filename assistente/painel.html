@@ -459,15 +459,17 @@ var COPIA_DB = {
   resource_exhausted: 'Demasiados pedidos à memória de uma vez. Espera um pouco e recarrega.',
   quota_exceeded: 'A memória está cheia. Apaga notas antigas.',
   invalid_argument: 'Pedido inválido à memória — isto é um defeito meu.',
-  unavailable: 'A memória não respondeu. Costuma recuperar sozinha.'
+  unavailable: 'A memória não respondeu. Costuma recuperar sozinha.',
+  sem_resposta: 'A memória não respondeu a tempo.'
 };
 
 /* O que mostrar numa secção que depende da memória. Pura, para poder ser testada:
    o que nunca pode acontecer é a secção desaparecer e ele pensar que perdeu a nota. */
 function estadoMemoria(estado, erro, vazioNormal) {
-  if (erro) return { html: '<p class="falhou">' + esc(COPIA_DB[erro] || ('A memória falhou (' + erro + ').')) + '</p>', ok: false };
+  var tentar = '<div class="acoes"><button type="button" data-memoria="1">Tentar de novo</button></div>';
+  if (erro) return { html: '<p class="falhou">' + esc(COPIA_DB[erro] || ('A memória falhou (' + erro + ').')) + '</p>' + tentar, ok: false };
   if (estado === 'aLigar') return { html: '<p class="vazio">A abrir a memória…</p>', ok: false };
-  if (estado === 'indisponivel') return { html: '<p class="falhou">' + esc(COPIA_DB.not_granted) + '</p>', ok: false };
+  if (estado === 'indisponivel') return { html: '<p class="falhou">' + esc(COPIA_DB.not_granted) + '</p>' + tentar, ok: false };
   return { html: '<p class="vazio">' + esc(vazioNormal) + '</p>', ok: true };
 }
 
@@ -565,38 +567,66 @@ function seguirCalendario(cal) {
 
 /* ═══ memória (db) ═════════════════════════════════════════════════ */
 
-function ligarMemoria() {
-  if (!db) return;
-  db.collection('notas').orderBy('criadaEm', 'desc').limit(200).onSnapshot(function (snap) {
-    notas = snap.docs.map(function (d) { var x = d.data() || {}; x.id = d.id; return x; });
-    memoria = { estado: 'pronta', erro: '' };
-    desenhar();
-  }, function (e) {
-    memoria = { estado: 'pronta', erro: (e && e.code) || 'unavailable' };
-    console.warn('notas:', e && e.code);
-    desenhar();
+function aplicarNotas(docs) {
+  notas = docs.map(function (d) { var x = d.data() || {}; x.id = d.id; return x; })
+    .sort(function (a, b) { return (a.criadaEm || '') < (b.criadaEm || '') ? 1 : -1; });
+}
+function aplicarSugestoes(docs) {
+  var novo = {};
+  docs.forEach(function (d) { var x = d.data() || {}; x.id = d.id; novo[d.id] = x; });
+  sugestoes = novo;
+}
+
+var memoriaACarregar = false;
+
+/* Leitura única de tudo. É esta que enche a página — as subscrições abaixo
+   são só para as mudanças. Ficar à espera de uma subscrição que nunca
+   entrega foi o que escondeu a nota do António. */
+function carregarMemoria() {
+  if (!db || memoriaACarregar) return;
+  memoriaACarregar = true;
+  memoria = { estado: 'aLigar', erro: '' };
+  desenhar();
+
+  var falhou = '';
+  function tentar(promessa, nome) {
+    return promessa.catch(function (e) {
+      if (!falhou) falhou = (e && e.code) || 'unavailable';
+      console.warn('memória/' + nome + ':', e && e.code, e && e.message);
+    });
+  }
+
+  Promise.all([
+    tentar(db.collection('notas').get().then(function (s) { aplicarNotas(s.docs); }), 'notas'),
+    tentar(db.collection('sugestoes').get().then(function (s) { aplicarSugestoes(s.docs); }), 'sugestoes'),
+    tentar(db.doc('meta/email_visto').get().then(function (s) { vistos = (s.exists && s.data() && s.data().ids) || {}; }), 'vistos'),
+    tentar(db.doc('meta/avisos').get().then(function (s) { avisosVistos = (s.exists && s.data() && s.data().ids) || {}; }), 'avisos'),
+    tentar(db.doc('meta/triagem').get().then(function (s) { metaTriagem = (s.exists && s.data()) || {}; }), 'triagem')
+  ]).then(function () {
+    memoriaACarregar = false;
+    memoria = { estado: 'pronta', erro: falhou };
+    desenhar(); talvezTriar(false);
   });
 
-  db.collection('sugestoes').onSnapshot(function (snap) {
-    sugestoes = {};
-    snap.docs.forEach(function (d) { var x = d.data() || {}; x.id = d.id; sugestoes[d.id] = x; });
-    desenhar(); talvezTriar(false);
-  }, function (e) { console.warn('sugestoes:', e && e.code); });
+  // Se nem as leituras responderem, não ficamos "a abrir" para sempre.
+  setTimeout(function () {
+    if (memoria.estado === 'aLigar') { memoriaACarregar = false; memoria = { estado: 'pronta', erro: 'sem_resposta' }; desenhar(); }
+  }, 12000);
+}
 
-  db.doc('meta/email_visto').onSnapshot(function (snap) {
-    vistos = (snap.exists && snap.data() && snap.data().ids) || {};
-    talvezTriar(false);
-  }, function (e) { console.warn('vistos:', e && e.code); });
+function ligarMemoria() {
+  if (!db) return;
+  carregarMemoria();
 
-  db.doc('meta/avisos').onSnapshot(function (snap) {
-    avisosVistos = (snap.exists && snap.data() && snap.data().ids) || {};
-    desenhar();
-  }, function (e) { console.warn('avisos:', e && e.code); });
-
-  db.doc('meta/triagem').onSnapshot(function (snap) {
-    metaTriagem = (snap.exists && snap.data()) || {};
-    desenhar(); talvezTriar(false);
-  }, function (e) { console.warn('triagem:', e && e.code); });
+  // As subscrições só acrescentam: se não entregarem, a leitura acima já encheu.
+  function aoFalhar(nome) {
+    return function (e) { console.warn('subscrição/' + nome + ':', e && e.code); };
+  }
+  db.collection('notas').onSnapshot(function (snap) { aplicarNotas(snap.docs); desenhar(); }, aoFalhar('notas'));
+  db.collection('sugestoes').onSnapshot(function (snap) { aplicarSugestoes(snap.docs); desenhar(); talvezTriar(false); }, aoFalhar('sugestoes'));
+  db.doc('meta/email_visto').onSnapshot(function (snap) { vistos = (snap.exists && snap.data() && snap.data().ids) || {}; talvezTriar(false); }, aoFalhar('vistos'));
+  db.doc('meta/avisos').onSnapshot(function (snap) { avisosVistos = (snap.exists && snap.data() && snap.data().ids) || {}; desenhar(); }, aoFalhar('avisos'));
+  db.doc('meta/triagem').onSnapshot(function (snap) { metaTriagem = (snap.exists && snap.data()) || {}; desenhar(); talvezTriar(false); }, aoFalhar('triagem'));
 }
 
 function notaNova(texto, tipo, origem) {
@@ -913,6 +943,7 @@ document.getElementById('conteudo').addEventListener('click', function (e) {
   else if (d.aviso) agirAviso(d.aviso);
   else if (d.nota) agirNota(d.nota, d.accao);
   else if (d.triar) talvezTriar(true);
+  else if (d.memoria) carregarMemoria();
 });
 
 /* ═══ a caixa do assistente ════════════════════════════════════════ */
