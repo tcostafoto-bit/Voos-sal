@@ -427,6 +427,7 @@ var vistos = {};          // threadId -> dia
 var avisosVistos = {};    // evId:data -> dia
 var metaTriagem = {};     // {ultima, contagem}
 var triagemEmCurso = false;
+var memoria = { estado: 'aLigar', erro: '' };   // aLigar | pronta | indisponivel
 var podeFerramentas = false;
 var maxFerramentas = 20;
 
@@ -450,6 +451,26 @@ var COPIA_SAMPLE = {
   invalid_json: 'A resposta veio mal formada. Tenta outra vez.',
   upstream_error: 'Falhou a meio. Tenta outra vez.'
 };
+var COPIA_DB = {
+  not_granted: 'Esta página não tem acesso à memória. Recarrega e aceita quando o Claude pedir.',
+  capability_disabled: 'A memória não está disponível nesta vista. Recarrega a página.',
+  capability_removed: 'A memória não está disponível nesta vista. Recarrega a página.',
+  revoked: 'O acesso à memória foi retirado enquanto a página estava aberta. Recarrega.',
+  resource_exhausted: 'Demasiados pedidos à memória de uma vez. Espera um pouco e recarrega.',
+  quota_exceeded: 'A memória está cheia. Apaga notas antigas.',
+  invalid_argument: 'Pedido inválido à memória — isto é um defeito meu.',
+  unavailable: 'A memória não respondeu. Costuma recuperar sozinha.'
+};
+
+/* O que mostrar numa secção que depende da memória. Pura, para poder ser testada:
+   o que nunca pode acontecer é a secção desaparecer e ele pensar que perdeu a nota. */
+function estadoMemoria(estado, erro, vazioNormal) {
+  if (erro) return { html: '<p class="falhou">' + esc(COPIA_DB[erro] || ('A memória falhou (' + erro + ').')) + '</p>', ok: false };
+  if (estado === 'aLigar') return { html: '<p class="vazio">A abrir a memória…</p>', ok: false };
+  if (estado === 'indisponivel') return { html: '<p class="falhou">' + esc(COPIA_DB.not_granted) + '</p>', ok: false };
+  return { html: '<p class="vazio">' + esc(vazioNormal) + '</p>', ok: true };
+}
+
 var SEM_ASSISTENTE = ['not_granted', 'sampling_disabled', 'not_declared', 'capability_disabled', 'capability_removed', 'tools_unavailable'];
 
 function recadoDe(codigo, servidor, mensagem) {
@@ -548,8 +569,13 @@ function ligarMemoria() {
   if (!db) return;
   db.collection('notas').orderBy('criadaEm', 'desc').limit(200).onSnapshot(function (snap) {
     notas = snap.docs.map(function (d) { var x = d.data() || {}; x.id = d.id; return x; });
+    memoria = { estado: 'pronta', erro: '' };
     desenhar();
-  }, function (e) { console.warn('notas:', e && e.code); });
+  }, function (e) {
+    memoria = { estado: 'pronta', erro: (e && e.code) || 'unavailable' };
+    console.warn('notas:', e && e.code);
+    desenhar();
+  });
 
   db.collection('sugestoes').onSnapshot(function (snap) {
     sugestoes = {};
@@ -851,7 +877,7 @@ function desenhar() {
   var tarefas = notas.filter(function (n) { return n.tipo !== 'facto' && !n.feita; });
   var factos = notas.filter(function (n) { return n.tipo === 'facto'; });
   var sugAbertas = Object.keys(sugestoes).filter(function (k) { return !tratados[k]; }).length;
-  var porTratar = g.aFechar.concat(g.prazos).filter(function (c) { return !tratados[c.id]; }).length + g.avisos.length + sugAbertas;
+  var porTratar = g.aFechar.concat(g.prazos).filter(function (c) { return !tratados[c.id]; }).length + g.avisos.length + sugAbertas + tarefas.length;
 
   document.getElementById('resumo').textContent = porTratar === 0
     ? (g.hoje.length ? 'Nada pendente. ' + g.hoje.length + (g.hoje.length === 1 ? ' coisa hoje.' : ' coisas hoje.') : 'Nada pendente, dia livre.')
@@ -865,13 +891,15 @@ function desenhar() {
   var html = '';
   if (g.avisos.length) html += seccao('Atenção', g.avisos.length, '<p class="explica">Datas escritas dentro de eventos, que não são a data do evento — prazos escondidos.</p>' + g.avisos.map(avisoHtml).join(''), '');
   html += seccao('A precisar de ti', g.aFechar.length + g.prazos.length, pendentes, 'Nada pendente. Está tudo fechado.');
+  var estadoTarefas = estadoMemoria(memoria.estado, memoria.erro, 'Nada sem data. Diz "lembra-me de…" para pôr aqui.');
+  html += seccao('Para fazer', estadoTarefas.ok ? tarefas.length : '—', tarefas.map(tarefaHtml).join('') || estadoTarefas.html, '');
   if (mcp && watchesFeitos.email) html += seccao('Do e-mail', sugAbertas, emailSeccao(), 'Nada de novo na caixa de entrada.', verificar);
-  if (db) html += seccao('Para fazer', tarefas.length, tarefas.map(tarefaHtml).join(''), 'Nada sem data. Diz "lembra-me de…" para pôr aqui.');
   html += seccao('Hoje', g.hoje.length, g.hoje.map(function (c) { return linhaHtml(c, false); }).join(''), 'Dia livre.');
   html += seccao('Próximas duas semanas', g.proximos.length, g.proximos.map(function (c) { return linhaHtml(c, true); }).join(''), 'Nada marcado.');
   html += seccao('Fechou sozinho', g.fechados.length, fechados ? '<p class="explica">Aconteceram por si. A data passou, não havia nada para confirmar.</p>' + fechados : '', 'Nada a assinalar.');
-  if (db) html += '<section><details' + (factos.length ? '' : ' open') + '><summary class="cabecalho-seccao"><h2><span class="seta">▶</span>O que sei</h2><span class="conta">' + factos.length + '</span></summary>' +
-    (factosHtml || '<p class="vazio">Ainda nada. Diz "lembra-te que…" e fica aqui, para sempre, até apagares.</p>') + '</details></section>';
+  var estadoFactos = estadoMemoria(memoria.estado, memoria.erro, 'Ainda nada. Diz "lembra-te que…" e fica aqui, para sempre, até apagares.');
+  html += '<section><details' + (factos.length ? '' : ' open') + '><summary class="cabecalho-seccao"><h2><span class="seta">▶</span>O que sei</h2><span class="conta">' + (estadoFactos.ok ? factos.length : '—') + '</span></summary>' +
+    (factosHtml || estadoFactos.html) + '</details></section>';
 
   document.getElementById('conteudo').innerHTML = html;
 }
@@ -1142,7 +1170,11 @@ function arrancar() {
   document.getElementById('dia').textContent = diaExtenso(diaISO(new Date()));
   if (!window.claude || !window.claude.use) { erroGlobal = { code: 'not_granted' }; desenhar(); return; }
 
-  window.claude.use('db').then(function (ns) { db = ns || null; if (db) ligarMemoria(); desenhar(); }, function () { db = null; });
+  window.claude.use('db').then(function (ns) {
+    db = ns || null;
+    if (db) ligarMemoria(); else memoria = { estado: 'indisponivel', erro: '' };
+    desenhar();
+  }, function () { db = null; memoria = { estado: 'indisponivel', erro: '' }; desenhar(); });
 
   window.claude.use('sample').then(function (ns) {
     if (!ns) return;

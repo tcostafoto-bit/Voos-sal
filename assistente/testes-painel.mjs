@@ -14,7 +14,8 @@ const janela = {};
 const P = new Function('document', 'window', js + `
   return { semAcentos, ehTarefa, jaFechado, ehPrincipal, somarDias, difDias, diaISO, datasNoTexto,
            abrangeDia, jaPassou, diaDoExtremo, arrumarEventos, montarLoteTriagem, podarTurnos,
-           trechoComData, somarMinutos, somarDiasRelogio, relogioDe, COLABORADORAS, MAX_THREADS };
+           trechoComData, somarMinutos, somarDiasRelogio, relogioDe, COLABORADORAS, MAX_THREADS,
+           estadoMemoria };
 `)(documento, janela);
 
 const HOJE = '2026-09-20';
@@ -158,4 +159,29 @@ test('tarefas: os verbos do dia-a-dia dele contam', () => {
 test('relógio de Lisboa: adiar por cima da mudança de hora mantém a hora', () => {
   assert.equal(P.somarDiasRelogio(P.relogioDe('2026-10-21T14:00:00+01:00'), 7), '2026-10-28T14:00:00');
   assert.equal(P.somarMinutos('2026-10-03T23:30', 60), '2026-10-04T00:30:00');
+});
+
+test('uma secção da memória nunca desaparece — diz sempre em que pé está', () => {
+  // O defeito que escondeu a nota do António: sem memória, a secção não existia.
+  const aLigar = P.estadoMemoria('aLigar', '', 'vazio normal');
+  assert.equal(aLigar.ok, false);
+  assert.ok(aLigar.html.includes('A abrir a memória'));
+
+  const sem = P.estadoMemoria('indisponivel', '', 'vazio normal');
+  assert.equal(sem.ok, false);
+  assert.ok(sem.html.includes('não tem acesso à memória'), sem.html);
+
+  const falhou = P.estadoMemoria('pronta', 'revoked', 'vazio normal');
+  assert.equal(falhou.ok, false);
+  assert.ok(falhou.html.includes('retirado'), falhou.html);
+
+  const desconhecido = P.estadoMemoria('pronta', 'codigo_novo', 'vazio normal');
+  assert.ok(desconhecido.html.includes('codigo_novo'), 'um código novo continua a ser dito');
+
+  const bem = P.estadoMemoria('pronta', '', 'vazio normal');
+  assert.equal(bem.ok, true);
+  assert.ok(bem.html.includes('vazio normal'));
+
+  // Em nenhum caso devolve vazio: haveria sempre alguma coisa a mostrar.
+  for (const r of [aLigar, sem, falhou, bem]) assert.ok(r.html.length > 10);
 });
