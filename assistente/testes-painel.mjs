@@ -15,7 +15,7 @@ const P = new Function('document', 'window', js + `
   return { semAcentos, ehTarefa, jaFechado, ehPrincipal, somarDias, difDias, diaISO, datasNoTexto,
            abrangeDia, jaPassou, diaDoExtremo, arrumarEventos, montarLoteTriagem, podarTurnos,
            trechoComData, somarMinutos, somarDiasRelogio, relogioDe, COLABORADORAS, MAX_THREADS,
-           estadoMemoria, ehNota, notasDeEventos, MARCA_NOTA, PREFIXO_TAREFA, PREFIXO_FACTO };
+           estadoMemoria, ehNota, notasDeEventos, MARCA_NOTA, PREFIXO_TAREFA, PREFIXO_FACTO, DIA_NOTAS };
 `)(documento, janela);
 
 const HOJE = '2026-09-20';
@@ -234,4 +234,18 @@ test('notas: nunca aparecem como compromissos da agenda', () => {
     start: { date: '2026-09-20' }, end: { date: '2026-09-21' } }] }, cals, new Date('2026-09-20T10:00:00+01:00'), {});
   assert.equal(g.hoje.length, 0, 'uma nota não ocupa o dia');
   assert.equal(g.aFechar.length + g.prazos.length + g.proximos.length, 0);
+});
+
+test('notas: a gaveta fica fora de qualquer dia real da agenda', () => {
+  // Uma tarefa sem data não pode parecer uma tarefa para hoje.
+  assert.ok(P.DIA_NOTAS < '2020-01-01', 'a gaveta tem de estar longe do presente');
+  const naGaveta = { id: 'n1', status: 'confirmed',
+    summary: P.PREFIXO_TAREFA + ' Ligar ao António',
+    description: '[' + P.MARCA_NOTA + '] tarefa sem data',
+    start: { date: P.DIA_NOTAS }, end: { date: '2010-01-02' } };
+  const cals = [{ id: 'p@x', nome: 'Principal', cor: '#000', principal: true, contexto: false }];
+  const g = P.arrumarEventos({ 'p@x': [naGaveta] }, cals, new Date('2026-09-20T10:00:00+01:00'), {});
+  assert.equal(g.hoje.length + g.proximos.length + g.aFechar.length + g.prazos.length + g.fechados.length, 0);
+  // E continua a ser lida como nota.
+  assert.equal(P.notasDeEventos([naGaveta], {}, 'p@x').length, 1);
 });

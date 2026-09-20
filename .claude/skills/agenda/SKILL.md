@@ -76,9 +76,10 @@ perguntar por ele.
 
 A memória vive no **Google Calendar**, não numa base de dados à parte — é o
 único sítio que responde em todas as vistas, e assim ele vê a lista na própria
-agenda. Cada nota é um evento de dia inteiro no calendário principal, criado no
-dia em que foi guardada, com `[nota-assistente]` na descrição e um prefixo no
-título que diz o que é:
+agenda. Cada nota é um evento de dia inteiro no calendário principal, **sempre
+em 1 de janeiro de 2010** — uma gaveta, para que uma coisa sem data não ocupe
+nenhum dia real. Leva `[nota-assistente]` na descrição, fica marcada como livre,
+e o prefixo do título diz o que é:
 
 | Prefixo | O que é | Onde aparece |
 |---|---|---|

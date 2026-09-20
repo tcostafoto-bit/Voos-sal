@@ -195,7 +195,9 @@ var MAX_NOTAS_NO_PROMPT = 40;
 var MARCA_NOTA = 'nota-assistente';
 var PREFIXO_TAREFA = '\u25FB';   // ◻
 var PREFIXO_FACTO = '\u2605';    // ★
-var DIAS_NOTAS_ATRAS = 365;
+// Todas as notas vivem no mesmo dia, lá atrás: uma gaveta. Assim não ocupam
+// nenhum dia real da agenda — uma tarefa sem data não é uma tarefa para hoje.
+var DIA_NOTAS = '2010-01-01';
 
 var COLABORADORAS = ['flavia', 'laura', 'catarina'];
 var CONSULTA_EMAIL = 'in:inbox newer_than:3d -from:me -category:promotions -category:social';
@@ -674,18 +676,18 @@ function refrescarNotas() {
 function notaNovaCal(texto, tipo, origem) {
   var cal = calPrincipal();
   if (!mcp || !cal) return Promise.reject(new Error('Ainda não tenho o calendário. Espera um segundo.'));
-  var hoje = diaISO(new Date());
   var prefixo = tipo === 'facto' ? PREFIXO_FACTO : PREFIXO_TAREFA;
   return mcp.callTool(CAL, 'create_event', {
     calendarId: cal.id,
     summary: prefixo + ' ' + String(texto).slice(0, 500),
     allDay: true, timeZone: FUSO,
-    startTime: hoje + 'T00:00:00', endTime: somarDias(hoje, 1) + 'T00:00:00',
+    startTime: DIA_NOTAS + 'T00:00:00', endTime: somarDias(DIA_NOTAS, 1) + 'T00:00:00',
+    availability: 'AVAILABILITY_FREE',
     description: '[' + MARCA_NOTA + '] ' + (tipo === 'facto' ? 'facto' : 'tarefa sem data') + ' · ' + (origem || 'caixa'),
     notificationLevel: 'NONE'
   }).then(function (r) {
     var p = r.payload || {};
-    eventosNota = eventosNota.concat([p]);   // aparece já
+    eventosNota = eventosNota.concat([p]);   // aparece já, sem esperar pelo Google
     desenhar(); refrescarNotas();
     return p.id;
   });
@@ -734,20 +736,37 @@ function seguirNotas() {
   var cal = calPrincipal();
   if (!cal) return;
   watchesFeitos.notas = true;
-  var hoje = diaISO(new Date()), off = offsetLisboa(new Date());
-  mcp.watchTool(CAL, 'list_events', {
+  var off = offsetLisboa(new Date());
+  var pedido = {
     calendarId: cal.id,
-    startTime: somarDias(hoje, -DIAS_NOTAS_ATRAS) + 'T00:00:00' + off,
-    endTime: somarDias(hoje, 30) + 'T23:59:59' + off,
+    startTime: somarDias(DIA_NOTAS, -1) + 'T00:00:00' + off,
+    endTime: somarDias(diaISO(new Date()), 30) + 'T23:59:59' + off,
     orderBy: 'startTime', pageSize: 250, timeZone: FUSO,
     fullText: MARCA_NOTA
-  }, function (ev) {
-    if (ev.type === 'error') { memoria = { estado: 'pronta', erro: (ev.error && ev.error.code) || 'unavailable' }; desenhar(); return; }
-    var p = ev.result && ev.result.payload;
-    eventosNota = (p && p.events) || [];
+  };
+
+  function receber(eventos) {
+    eventosNota = eventos || [];
     memoria = { estado: 'pronta', erro: '' };
     desenhar();
+  }
+
+  // Duas fontes para a mesma coisa: o watch, e uma leitura direta. Uma que
+  // não entregue já não deixa a lista vazia — foi o que escondeu a nota antes.
+  mcp.watchTool(CAL, 'list_events', pedido, function (ev) {
+    if (ev.type === 'error') {
+      if (!eventosNota.length) { memoria = { estado: 'pronta', erro: (ev.error && ev.error.code) || 'unavailable' }; desenhar(); }
+      return;
+    }
+    var p = ev.result && ev.result.payload;
+    receber((p && p.events) || []);
   }, { cache: { staleTime: 60000 }, refetchInterval: 600000 });
+
+  mcp.callTool(CAL, 'list_events', pedido, { cache: { refresh: true } })
+    .then(function (r) { if (!eventosNota.length) receber(((r.payload || {}).events) || []); })
+    .catch(function (e) {
+      if (!eventosNota.length) { memoria = { estado: 'pronta', erro: (e && e.code) || 'unavailable' }; desenhar(); }
+    });
 }
 
 function seguirEmail() {
