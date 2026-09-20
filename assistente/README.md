@@ -12,16 +12,34 @@ Corre dentro da subscrição do Claude — **não há conta da API ao token**.
 — o código está em [painel.html](./painel.html). Está afixado na barra lateral
 do claude.ai.
 
-| Secção | O que traz |
+**Quatro abas**, com o número do que está à tua espera em cada uma:
+
+| Aba | O que traz |
 |---|---|
-| **A caixa** | Escreves ou ditas. Cria, altera, adia, fecha, guarda na memória, lê e rascunha e-mail, responde a perguntas |
-| Atenção | Datas escritas *dentro* de eventos, que não são a data do evento — prazos escondidos (ex.: "tarifa válida até 30/09") |
-| A precisar de ti | Tarefas que passaram sem fechar, e prazos na próxima semana. Botões: ✓ Concluído · Tirar da lista · Adiar 1 semana |
-| Do e-mail | A caixa de entrada triada: compromissos a agendar, prazos, e-mails que esperam resposta com o rascunho já escrito. Botões: Adicionar à agenda · Rascunhar resposta · Ignorar |
-| Para fazer | Tarefas sem data ("comprar tinteiros"), com ✓ |
-| Hoje · Próximas duas semanas | A agenda, incluindo a das colaboradoras |
-| Fechou sozinho | Compromissos passados, dados por feitos sem perguntar |
-| O que sei | Os factos que guardou. Apagas o que já não for verdade |
+| **Hoje** | Uma pergunta se houver, a agenda do dia, o que vem a seguir, e o que fechou sozinho |
+| **Fazer** | Atenção (prazos escondidos dentro de eventos), o que precisa de ti, e as tarefas sem data |
+| **E-mail** | A caixa de entrada triada: compromissos a agendar, prazos, e-mails que esperam resposta com o rascunho já escrito |
+| **Memória** | Os factos que guardou. Apagas o que já não for verdade |
+
+A **caixa de falar** fica acima das abas em todos os ecrãs — escreves ou ditas,
+e ele cria, altera, adia, fecha, guarda na memória, lê e rascunha e-mail, ou
+responde a perguntas.
+
+A aba aberta fica guardada no browser, para voltares onde estavas. Se o
+armazenamento estiver bloqueado, abre no Hoje — não há nada que dependa disso.
+
+### O aspeto
+
+Verde-petróleo para o que é teu e está em ordem. Os avisos têm cor própria:
+mostarda quando o prazo aí vem, ferrugem quando já passou, azul-ardósia para o
+que veio de fora. Cor semântica nunca é o acento, por isso um prazo não se
+confunde com um botão.
+
+Três letras, cada uma com um trabalho: **Bricolage Grotesque** nos títulos das
+abas, **Archivo** em tudo o que se lê, **IBM Plex Mono** nas horas e datas, para
+alinharem em coluna.
+
+O desenho está em [claude.ai/artifact/1cv2r5szrbZaKEveTrRFZi](https://claude.ai/artifact/1cv2r5szrbZaKEveTrRFZi).
 
 ### A caixa
 

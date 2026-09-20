@@ -1,22 +1,23 @@
 <title>Painel do Assistente</title>
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,700&family=Archivo:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap">
 <style>
   :root {
-    --ground: #f7f8f6; --surface: #ffffff; --ink: #171a18;
-    --muted: #6a716b; --faint: #939a93; --rule: #e2e6e1;
-    --accent: #0f5c4f; --accent-soft: #e4efeb;
+    --ground: #f4f6f3; --surface: #ffffff; --ink: #141816;
+    --muted: #5e665f; --faint: #8b938c; --rule: #e1e6e1;
+    --accent: #0f5c4f; --accent-soft: #e3efea;
     --alert: #9e3a1e; --alert-soft: #fbeee9;
     --soon: #7a5a12; --soon-soft: #fbf3e2;
     --mail: #3b4f8a; --mail-soft: #e9edf8;
-    --radius: 10px;
+    --radius: 11px;
+    --display: 'Bricolage Grotesque', 'Archivo', system-ui, sans-serif;
     --sans: 'Archivo', system-ui, -apple-system, 'Segoe UI', sans-serif;
     --mono: 'IBM Plex Mono', ui-monospace, 'SF Mono', Menlo, monospace;
   }
   @media (prefers-color-scheme: dark) {
     :root:not([data-theme="light"]) {
-      --ground: #121412; --surface: #1a1d1a; --ink: #e9ece8;
-      --muted: #9aa29b; --faint: #6f766f; --rule: #2a2e2a;
+      --ground: #111413; --surface: #1a1e1c; --ink: #e9ece8;
+      --muted: #9aa29b; --faint: #6f766f; --rule: #282d2a;
       --accent: #5fbfa6; --accent-soft: #16302a;
       --alert: #ef937a; --alert-soft: #2e1a13;
       --soon: #ddb45f; --soon-soft: #2b2415;
@@ -24,8 +25,8 @@
     }
   }
   :root[data-theme="dark"] {
-    --ground: #121412; --surface: #1a1d1a; --ink: #e9ece8;
-    --muted: #9aa29b; --faint: #6f766f; --rule: #2a2e2a;
+    --ground: #111413; --surface: #1a1e1c; --ink: #e9ece8;
+    --muted: #9aa29b; --faint: #6f766f; --rule: #282d2a;
     --accent: #5fbfa6; --accent-soft: #16302a;
     --alert: #ef937a; --alert-soft: #2e1a13;
     --soon: #ddb45f; --soon-soft: #2b2415;
@@ -33,144 +34,172 @@
   }
 
   * { box-sizing: border-box; }
+  html, body { height: 100%; }
   body {
     margin: 0; background: var(--ground); color: var(--ink);
     font-family: var(--sans); font-size: 15px; line-height: 1.5;
-    padding-inline: 20px; padding-block: 0 72px;
+    display: flex; flex-direction: column; overflow: hidden;
+    -webkit-font-smoothing: antialiased;
   }
-  .folha { max-width: 660px; margin-inline: auto; }
 
-  .topo { padding-block: 40px 8px; }
-  .etiqueta { font-family: var(--mono); font-size: 11px; font-weight: 500; letter-spacing: .14em; text-transform: uppercase; color: var(--faint); margin: 0; }
-  h1 { font-size: clamp(30px, 7vw, 40px); font-weight: 700; letter-spacing: -.03em; margin: 6px 0 2px; text-wrap: balance; }
-  .subtitulo { color: var(--muted); font-size: 15px; margin: 0; min-height: 1.5em; }
+  /* ── cabeçalho ── */
+  .topo { flex: 0 0 auto; padding: 26px 20px 8px; max-width: 700px; width: 100%; margin-inline: auto; }
+  .etiqueta { font-family: var(--mono); font-size: 10px; font-weight: 500; letter-spacing: .14em; text-transform: uppercase; color: var(--faint); margin: 0; }
+  h1 { font-family: var(--display); font-size: 31px; font-weight: 700; letter-spacing: -.03em; line-height: 1; margin: 5px 0 0; }
+  .subtitulo { color: var(--muted); font-size: 13.5px; margin: 6px 0 0; line-height: 1.4; min-height: 1.4em; }
 
-  section { margin-top: 34px; }
-  .cabecalho-seccao { display: flex; align-items: baseline; gap: 10px; padding-bottom: 8px; border-bottom: 1px solid var(--rule); margin-bottom: 14px; }
-  h2 { font-size: 12px; font-weight: 600; letter-spacing: .12em; text-transform: uppercase; color: var(--muted); margin: 0; }
-  .conta { font-family: var(--mono); font-size: 12px; color: var(--faint); }
+  /* ── o que rola ── */
+  main { flex: 1 1 auto; min-height: 0; overflow-y: auto; overflow-x: hidden; -webkit-overflow-scrolling: touch; }
+  .folha { max-width: 700px; margin-inline: auto; padding: 0 20px 28px; }
+
+  section { margin-top: 18px; }
+  section:first-child { margin-top: 6px; }
+  .cabecalho-seccao { display: flex; align-items: baseline; gap: 9px; padding: 0 0 8px; margin-bottom: 11px; border-bottom: 1px solid var(--rule); }
+  h2 { font-size: 11px; font-weight: 600; letter-spacing: .11em; text-transform: uppercase; color: var(--muted); margin: 0; }
+  .conta { font-family: var(--mono); font-size: 11px; color: var(--faint); }
   .cabecalho-seccao .direita { margin-left: auto; }
 
+  /* ── cartões ── */
   .cartao {
-    background: var(--surface); border: 1px solid var(--rule);
-    border-left: 3px solid var(--rule); border-radius: var(--radius);
-    padding: 14px 16px; margin-bottom: 10px;
+    background: var(--surface); border: 1px solid var(--rule); border-left: 3px solid var(--rule);
+    border-radius: var(--radius); padding: 13px 14px; margin-bottom: 9px;
   }
   .cartao.fechar { border-left-color: var(--alert); }
-  .cartao.prazo { border-left-color: var(--soon); }
-  .cartao.aviso { border-left-color: var(--soon); }
+  .cartao.prazo, .cartao.aviso { border-left-color: var(--soon); }
   .cartao.mail { border-left-color: var(--mail); }
   .cartao.nota { border-left-color: var(--accent); }
   .cartao.feita { opacity: .5; border-left-color: var(--accent); }
   .cartao.tracejado { border-style: dashed; border-left-style: solid; background: transparent; }
 
-  .quando { display: inline-block; font-family: var(--mono); font-size: 11px; font-weight: 500; letter-spacing: .06em; text-transform: uppercase; margin-bottom: 5px; color: var(--muted); }
+  .quando { display: inline-block; font-family: var(--mono); font-size: 9.5px; font-weight: 500; letter-spacing: .1em; text-transform: uppercase; margin-bottom: 5px; color: var(--muted); }
   .fechar .quando { color: var(--alert); }
   .prazo .quando, .aviso .quando { color: var(--soon); }
   .mail .quando { color: var(--mail); }
   .feita .quando { color: var(--accent); }
-  .titulo-item { font-weight: 600; letter-spacing: -.01em; overflow-wrap: anywhere; }
-  .pergunta { color: var(--muted); font-size: 14px; margin: 2px 0 0; }
-  .origem { font-size: 13px; color: var(--faint); margin: 3px 0 0; display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
-  .rascunho-previa { font-size: 13.5px; color: var(--muted); margin: 8px 0 0; padding: 9px 12px; background: var(--ground); border-radius: 8px; white-space: pre-wrap; max-height: 7.5em; overflow: hidden; }
+  .titulo-item { font-size: 14px; font-weight: 600; letter-spacing: -.01em; line-height: 1.3; overflow-wrap: anywhere; }
+  .pergunta { color: var(--muted); font-size: 12.5px; line-height: 1.4; margin: 3px 0 0; }
+  .origem { font-size: 11.5px; color: var(--faint); margin: 4px 0 0; display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
+  .rascunho-previa { font-size: 12.5px; color: var(--muted); margin: 8px 0 0; padding: 9px 11px; background: var(--ground); border-radius: 8px; white-space: pre-wrap; max-height: 7em; overflow: hidden; line-height: 1.45; }
 
-  .acoes { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 12px; }
+  .acoes { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 10px; }
   button {
-    font-family: var(--sans); font-size: 13.5px; font-weight: 500;
-    padding: 7px 14px; border-radius: 8px; cursor: pointer;
+    font-family: var(--sans); font-size: 12.5px; font-weight: 500;
+    padding: 8px 12px; border-radius: 8px; cursor: pointer; min-height: 36px;
     border: 1px solid var(--rule); background: var(--surface); color: var(--ink);
-    transition: transform .08s ease, background .15s ease, opacity .15s ease;
+    transition: transform .08s ease, opacity .15s ease;
   }
-  button:hover:not(:disabled) { background: var(--ground); }
   button.principal { background: var(--accent); border-color: var(--accent); color: var(--ground); }
-  button.principal:hover:not(:disabled) { filter: brightness(1.08); }
-  button.leve { border-color: transparent; color: var(--muted); padding-inline: 8px; }
+  button.leve { border-color: transparent; color: var(--faint); padding-inline: 6px; }
   button:active:not(:disabled) { transform: scale(.97); }
   button:disabled { opacity: .45; cursor: default; }
   button:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
-  .feito-aviso { margin-top: 11px; font-size: 13.5px; font-weight: 600; color: var(--accent); }
-  .falhou { margin-top: 11px; font-size: 13.5px; color: var(--alert); background: var(--alert-soft); border-radius: 8px; padding: 9px 12px; }
+  .feito-aviso { margin: 10px 0 0; font-size: 12.5px; font-weight: 600; color: var(--accent); }
+  .falhou { margin: 10px 0 0; font-size: 12.5px; color: var(--alert); background: var(--alert-soft); border-radius: 8px; padding: 9px 11px; line-height: 1.4; }
 
-  .linha { display: flex; gap: 14px; align-items: baseline; padding: 11px 2px; border-bottom: 1px solid var(--rule); }
+  /* ── linhas da agenda ── */
+  .linha { display: flex; gap: 11px; align-items: baseline; padding: 10px 2px; border-bottom: 1px solid var(--rule); }
   .linha:last-child { border-bottom: none; }
-  .hora { font-family: var(--mono); font-size: 13px; font-variant-numeric: tabular-nums; min-width: 62px; flex: 0 0 auto; color: var(--ink); }
+  .hora { font-family: var(--mono); font-size: 11.5px; font-variant-numeric: tabular-nums; min-width: 56px; flex: 0 0 auto; color: var(--ink); }
   .hora.aberta { color: var(--faint); }
-  .linha-corpo { flex: 1; min-width: 0; }
-  .detalhe { font-size: 12.5px; color: var(--faint); margin-top: 1px; display: flex; align-items: center; gap: 6px; }
-  .ponto { width: 7px; height: 7px; border-radius: 50%; flex: 0 0 auto; }
+  .linha-corpo { flex: 1 1 auto; min-width: 0; }
+  .detalhe { font-size: 11.5px; color: var(--faint); margin-top: 2px; display: flex; align-items: center; gap: 6px; }
+  .ponto { width: 6px; height: 6px; border-radius: 3px; flex: 0 0 auto; }
 
-  .fechado { display: flex; gap: 12px; align-items: baseline; padding: 8px 2px; color: var(--muted); font-size: 14px; }
-  .fechado .hora { color: var(--faint); min-width: 48px; }
+  .fechado { display: flex; gap: 11px; align-items: baseline; padding: 8px 2px; color: var(--muted); font-size: 13.5px; }
+  .fechado .hora { color: var(--faint); min-width: 46px; }
   .visto { color: var(--accent); font-weight: 600; }
 
-  .facto { display: flex; gap: 10px; align-items: baseline; padding: 8px 2px; border-bottom: 1px solid var(--rule); font-size: 14px; }
+  .facto { display: flex; gap: 10px; align-items: baseline; padding: 10px 0; border-bottom: 1px solid var(--rule); font-size: 13.5px; line-height: 1.4; }
   .facto:last-child { border-bottom: none; }
-  .facto span { flex: 1; }
+  .facto span { flex: 1 1 auto; }
+  .facto .estrela { flex: 0 0 auto; color: var(--accent); font-size: 12px; }
 
-  .vazio { color: var(--faint); font-size: 14px; padding: 4px 2px; margin: 0; }
-  .explica { color: var(--faint); font-size: 13.5px; margin: 0 0 8px; line-height: 1.5; }
-  .esqueleto { height: 56px; border-radius: var(--radius); background: var(--rule); margin-bottom: 10px; animation: pulsar 1.5s ease-in-out infinite; }
+  .vazio { color: var(--faint); font-size: 13px; padding: 2px 2px 6px; margin: 0; line-height: 1.5; }
+  .explica { color: var(--faint); font-size: 12.5px; margin: 0 0 8px; line-height: 1.5; }
+  .esqueleto { height: 54px; border-radius: var(--radius); background: var(--rule); margin-bottom: 9px; animation: pulsar 1.5s ease-in-out infinite; }
   @keyframes pulsar { 0%, 100% { opacity: .45 } 50% { opacity: .85 } }
 
-  .recado { border: 1px solid var(--rule); border-left: 3px solid var(--soon); background: var(--surface); border-radius: var(--radius); padding: 15px 17px; margin-top: 24px; }
-  .recado h3 { margin: 0 0 4px; font-size: 15px; font-weight: 600; }
-  .recado p { margin: 0; color: var(--muted); font-size: 14px; }
+  .recado { border: 1px solid var(--rule); border-left: 3px solid var(--soon); background: var(--surface); border-radius: var(--radius); padding: 14px 15px; margin-bottom: 12px; }
+  .recado h3 { margin: 0 0 4px; font-size: 14px; font-weight: 600; }
+  .recado p { margin: 0; color: var(--muted); font-size: 13px; line-height: 1.45; }
 
-  details summary { cursor: pointer; list-style: none; }
-  details summary::-webkit-details-marker { display: none; }
-  details[open] summary .seta { transform: rotate(90deg); }
-  .seta { display: inline-block; transition: transform .15s ease; margin-right: 6px; font-size: 11px; }
-
-  /* caixa do assistente */
-  .assistente { background: var(--surface); border: 1px solid var(--rule); border-radius: var(--radius); padding: 12px 13px; margin-top: 22px; }
-  .compositor { display: flex; gap: 8px; align-items: center; }
-  .compositor input { flex: 1; min-width: 0; font: inherit; font-size: 15px; background: transparent; color: var(--ink); border: none; padding: 6px 2px; }
+  /* ── caixa do assistente ── */
+  .assistente { flex: 0 0 auto; background: var(--surface); border-top: 1px solid var(--rule); }
+  .assistente-folha { max-width: 700px; margin-inline: auto; padding: 0 14px 0 18px; }
+  .conversa { max-height: 34vh; overflow-y: auto; display: flex; flex-direction: column; gap: 8px; padding: 12px 0 2px; }
+  .conversa:empty { display: none; }
+  .bolha { font-size: 14px; line-height: 1.45; margin: 0; }
+  .bolha.eu { color: var(--muted); }
+  .bolha.eu::before { content: "Tu · "; font-family: var(--mono); font-size: 10px; letter-spacing: .1em; text-transform: uppercase; color: var(--faint); }
+  .bolha.ele { color: var(--ink); white-space: pre-wrap; }
+  .bolha.ele::before { content: "Assistente · "; font-family: var(--mono); font-size: 10px; letter-spacing: .1em; text-transform: uppercase; color: var(--accent); }
+  .bolha.mau { color: var(--alert); }
+  .pensar { color: var(--faint); font-size: 13.5px; font-style: italic; margin: 0; }
+  .compositor { display: flex; gap: 8px; align-items: center; padding: 9px 0; }
+  .compositor input { flex: 1 1 auto; min-width: 0; font: inherit; font-size: 15px; background: transparent; color: var(--ink); border: none; padding: 6px 0; }
   .compositor input::placeholder { color: var(--faint); }
   .compositor input:focus { outline: none; }
-  .redondo { width: 36px; height: 36px; padding: 0; flex: 0 0 auto; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 15px; line-height: 1; }
+  .redondo { width: 34px; height: 34px; min-height: 34px; padding: 0; flex: 0 0 auto; border-radius: 17px; display: flex; align-items: center; justify-content: center; }
   .redondo.aouvir { background: var(--alert); border-color: var(--alert); color: #fff; animation: bater 1.1s ease-in-out infinite; }
   @keyframes bater { 0%, 100% { transform: scale(1) } 50% { transform: scale(1.12) } }
-  .conversa { margin-bottom: 10px; display: flex; flex-direction: column; gap: 9px; }
-  .bolha { font-size: 14.5px; line-height: 1.45; margin: 0; }
-  .bolha.eu { color: var(--muted); }
-  .bolha.eu::before { content: "Tu · "; font-family: var(--mono); font-size: 11px; letter-spacing: .08em; text-transform: uppercase; color: var(--faint); }
-  .bolha.ele { color: var(--ink); white-space: pre-wrap; }
-  .bolha.ele::before { content: "Assistente · "; font-family: var(--mono); font-size: 11px; letter-spacing: .08em; text-transform: uppercase; color: var(--accent); }
-  .bolha.mau { color: var(--alert); }
-  .pensar { color: var(--faint); font-size: 14px; font-style: italic; margin: 0; }
-  .dica { color: var(--faint); font-size: 12.5px; margin: 9px 0 0; line-height: 1.45; }
+  .dica { color: var(--faint); font-size: 11.5px; margin: 0 0 9px; line-height: 1.4; }
 
-  footer { margin-top: 44px; padding-top: 18px; border-top: 1px solid var(--rule); color: var(--faint); font-size: 13px; line-height: 1.6; }
-  footer code { font-family: var(--mono); font-size: 12.5px; background: var(--surface); border: 1px solid var(--rule); border-radius: 4px; padding: 1px 5px; }
+  /* ── abas ── */
+  .abas {
+    flex: 0 0 auto; display: flex; align-items: stretch;
+    background: var(--surface); border-top: 1px solid var(--rule);
+    padding-bottom: env(safe-area-inset-bottom, 0px);
+  }
+  .abas-folha { max-width: 700px; margin-inline: auto; width: 100%; display: flex; }
+  .aba {
+    flex: 1 1 0; display: flex; flex-direction: column; align-items: center; justify-content: center;
+    gap: 4px; padding: 9px 0 10px; min-height: 54px; border: none; background: none;
+    color: var(--faint); border-radius: 0; font-size: 10.5px; font-weight: 500; letter-spacing: .01em;
+  }
+  .aba[aria-current="page"] { color: var(--accent); font-weight: 600; }
+  .aba .sino { position: relative; display: flex; }
+  .badge {
+    position: absolute; top: -3px; right: -9px; min-width: 16px; height: 16px; padding: 0 4px;
+    border-radius: 8px; background: var(--rule); color: var(--muted);
+    font-family: var(--mono); font-size: 10px; font-weight: 500;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .aba[aria-current="page"] .badge { background: var(--accent); color: var(--ground); }
+
   @media (prefers-reduced-motion: reduce) { * { transition: none !important; animation: none !important; } }
 </style>
 
-<div class="folha">
-  <header class="topo">
-    <p class="etiqueta" id="dia"></p>
-    <h1>Assistente</h1>
-    <p class="subtitulo" id="resumo">A ligar…</p>
-  </header>
 
-  <div id="recado"></div>
+<header class="topo">
+  <p class="etiqueta" id="dia"></p>
+  <h1 id="tituloAba">Hoje</h1>
+  <p class="subtitulo" id="resumo">A ligar…</p>
+</header>
 
-  <div class="assistente" id="assistente" hidden>
+<main>
+  <div class="folha">
+    <div id="recado"></div>
+    <div id="conteudo">
+      <section><div class="cabecalho-seccao"><h2>A precisar de ti</h2></div><div class="esqueleto"></div><div class="esqueleto"></div></section>
+      <section><div class="cabecalho-seccao"><h2>Hoje</h2></div><div class="esqueleto"></div></section>
+    </div>
+  </div>
+</main>
+
+<div class="assistente" id="assistente" hidden>
+  <div class="assistente-folha">
     <div class="conversa" id="conversa"></div>
     <form class="compositor" id="compositor">
+      <label for="caixa" style="position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);">Falar com o assistente</label>
       <input id="caixa" placeholder="Falar com o assistente…" autocomplete="off" enterkeyhint="send">
       <button type="button" class="redondo" id="microfone" title="Ditar" aria-label="Ditar" hidden>🎙</button>
       <button type="submit" class="redondo principal" id="enviar" title="Enviar" aria-label="Enviar">↑</button>
     </form>
-    <p class="dica" id="dica">Ex.: <i>amanhã às 10 dentista</i> · <i>lembra-me de comprar tinteiros</i> · <i>lembra-te que o casamento dos Silva é com a Joana</i> · <i>trata do e-mail da candidata</i></p>
+    <p class="dica" id="dica">Ex.: <i>amanhã às 10 dentista</i> · <i>lembra-me de comprar tinteiros</i> · <i>trata do e-mail da candidata</i></p>
   </div>
-
-  <main id="conteudo">
-    <section><div class="cabecalho-seccao"><h2>A precisar de ti</h2></div><div class="esqueleto"></div><div class="esqueleto"></div></section>
-    <section><div class="cabecalho-seccao"><h2>Hoje</h2></div><div class="esqueleto"></div></section>
-  </main>
-
-  <footer id="rodape">O estado das pendências vive no título dos eventos (✓ feito, ✗ fora). A memória e as sugestões do e-mail ficam guardadas neste painel.</footer>
 </div>
+
+<nav class="abas" id="abas" aria-label="Secções"><div class="abas-folha"><button type="button" class="aba" data-aba="hoje" aria-label="Hoje"><span class="sino"><svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4.5" width="14" height="13" rx="2.5"></rect><path d="M3 8.5h14M7 2.5v4M13 2.5v4"></path></svg><span class="badge" data-badge="hoje" hidden></span></span><span>Hoje</span></button><button type="button" class="aba" data-aba="fazer" aria-label="Fazer"><span class="sino"><svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="3.5" width="14" height="14" rx="3"></rect><path d="M6.8 10.5l2.2 2.2 4.2-4.6"></path></svg><span class="badge" data-badge="fazer" hidden></span></span><span>Fazer</span></button><button type="button" class="aba" data-aba="email" aria-label="E-mail"><span class="sino"><svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="2.5" y="4.5" width="15" height="11" rx="2.5"></rect><path d="M3.2 6.6l6.8 4.6 6.8-4.6"></path></svg><span class="badge" data-badge="email" hidden></span></span><span>E-mail</span></button><button type="button" class="aba" data-aba="memoria" aria-label="Memória"><span class="sino"><svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M10 2.8l2.3 4.7 5.2.75-3.75 3.65.9 5.15L10 14.6l-4.65 2.45.9-5.15L1.5 8.25l5.2-.75z"></path></svg><span class="badge" data-badge="memoria" hidden></span></span><span>Memória</span></button></div></nav>
 
 <script>
 'use strict';
@@ -474,6 +503,13 @@ var metaTriagem = {};     // {ultima, contagem}
 var triagemEmCurso = false;
 var memoria = { estado: 'aLigar', erro: '' };   // aLigar | pronta | indisponivel
 var podeFerramentas = false;
+
+// A aba aberta é uma conveniência de quem está a ver, não estado partilhado:
+// vive no browser dele e a página tem de funcionar sem ela.
+var ABAS = ['hoje', 'fazer', 'email', 'memoria'];
+var TITULOS = { hoje: 'Hoje', fazer: 'Fazer', email: 'E-mail', memoria: 'Memória' };
+var abaActiva = 'hoje';
+try { var g = localStorage.getItem('aba'); if (ABAS.indexOf(g) >= 0) abaActiva = g; } catch (e) { /* sem armazenamento */ }
 var maxFerramentas = 20;
 
 /* ═══ cópia de erros ═══════════════════════════════════════════════ */
@@ -1063,12 +1099,94 @@ function emailSeccao() {
   return html + rodape;
 }
 
+function seccaoHoje(g) {
+  var html = '';
+  var urgentes = g.aFechar.concat(g.prazos).filter(function (c) { return !tratados[c.id]; }).slice(0, 2);
+  if (urgentes.length) {
+    html += seccao('Agora', urgentes.length,
+      urgentes.map(function (c) { return pendenciaHtml(c, c.faltam === undefined ? 'fechar' : 'prazo'); }).join(''), '');
+  }
+  html += seccao('O dia', g.hoje.length, g.hoje.map(function (c) { return linhaHtml(c, false); }).join(''), 'Dia livre.');
+  html += seccao('A seguir', g.proximos.length, g.proximos.slice(0, 8).map(function (c) { return linhaHtml(c, true); }).join(''), 'Nada marcado.');
+  if (g.fechados.length) {
+    html += seccao('Fechou sozinho', g.fechados.length,
+      '<p class="explica">Aconteceram por si. A data passou, não havia nada para confirmar.</p>' +
+      g.fechados.map(function (c) {
+        return '<div class="fechado"><span class="hora">' + esc(dataCurta(c.dia)) + '</span><span>' +
+          esc(c.titulo.replace(/^[✓✗]\s*/, '')) + '</span><span class="visto">✓</span></div>';
+      }).join(''), '');
+  }
+  return html;
+}
+
+function seccaoFazer(g, tarefas) {
+  var html = '';
+  if (g.avisos.length) {
+    html += seccao('Atenção', g.avisos.length,
+      '<p class="explica">Datas escritas dentro de eventos, que não são a data do evento — prazos escondidos.</p>' +
+      g.avisos.map(avisoHtml).join(''), '');
+  }
+  html += seccao('A precisar de ti', g.aFechar.length + g.prazos.length,
+    g.aFechar.map(function (c) { return pendenciaHtml(c, 'fechar'); })
+      .concat(g.prazos.map(function (c) { return pendenciaHtml(c, 'prazo'); })).join(''),
+    'Nada pendente. Está tudo fechado.');
+  var est = estadoMemoria(memoria.estado, memoria.erro, 'Nada sem data. Diz "lembra-me de…" para pôr aqui.');
+  html += seccao('Sem data', est.ok ? tarefas.length : '—', tarefas.map(tarefaHtml).join('') || est.html, '');
+  return html;
+}
+
+function seccaoMemoria(factos) {
+  var est = estadoMemoria(memoria.estado, memoria.erro, 'Ainda nada. Diz "lembra-te que…" e fica aqui, para sempre, até apagares.');
+  var lista = factos.map(function (n) {
+    return '<div class="facto"><span class="estrela">★</span><span>' + esc(n.texto) + '</span>' +
+      botao('esquecer', 'leve', { nota: n.id, cal: n.calId, texto: n.texto, accao: 'apagar' }) + '</div>';
+  }).join('');
+  return seccao('O que sei', est.ok ? factos.length : '—', lista || est.html, '') +
+    '<p class="explica" style="margin-top:12px">Fica guardado no teu Google Calendar, não aqui. Se este painel desaparecer, continua lá.</p>';
+}
+
+var RESUMOS = {
+  hoje: function (g, n) { return n ? (n === 1 ? 'Uma coisa à tua espera.' : n + ' coisas à tua espera.')
+    : (g.hoje.length ? g.hoje.length + (g.hoje.length === 1 ? ' coisa hoje.' : ' coisas hoje.') : 'Dia livre.'); },
+  fazer: function (g, n, t) { var a = g.aFechar.length + g.prazos.length + g.avisos.length + t;
+    return a === 0 ? 'Nada pendente. Está tudo fechado.' : a === 1 ? 'Uma coisa para tratares.' : a + ' coisas para tratares.'; },
+  email: function (g, n, t, s) { return s === 0 ? 'Nada de novo na caixa de entrada.'
+    : s === 1 ? 'Um e-mail com alguma coisa para ti.' : s + ' e-mails com alguma coisa para ti.'; },
+  memoria: function (g, n, t, s, f) { return f === 0 ? 'Diz "lembra-te que…" e fica aqui.'
+    : f === 1 ? 'Uma coisa que sei.' : f + ' coisas que sei.'; }
+};
+
+function contagens(g, tarefas, sugAbertas, factos) {
+  return {
+    hoje: g.hoje.length,
+    fazer: g.aFechar.concat(g.prazos).filter(function (c) { return !tratados[c.id]; }).length + g.avisos.length + tarefas.length,
+    email: sugAbertas,
+    memoria: 0
+  };
+}
+
+function desenharAbas(contas) {
+  ABAS.forEach(function (k) {
+    var b = document.querySelector('.aba[data-aba="' + k + '"]');
+    if (!b) return;
+    if (k === abaActiva) b.setAttribute('aria-current', 'page'); else b.removeAttribute('aria-current');
+    var sino = b.querySelector('[data-badge]');
+    if (!sino) return;
+    if (contas[k] > 0) { sino.textContent = contas[k]; sino.hidden = false; } else { sino.hidden = true; }
+  });
+}
+
 function desenhar() {
   var agora = new Date(), hoje = diaISO(agora);
   document.getElementById('dia').textContent = diaExtenso(hoje);
+  document.getElementById('tituloAba').textContent = TITULOS[abaActiva];
   document.getElementById('recado').innerHTML = erroGlobal ? recadoDe(erroGlobal.code, CAL, erroGlobal.message) : '';
 
-  if (erroGlobal && !recebeuAgenda) { document.getElementById('resumo').textContent = 'Sem ligação ao calendário.'; document.getElementById('conteudo').innerHTML = ''; return; }
+  if (erroGlobal && !recebeuAgenda) {
+    document.getElementById('resumo').textContent = 'Sem ligação ao calendário.';
+    document.getElementById('conteudo').innerHTML = '';
+    return;
+  }
   if (!recebeuAgenda) return;
 
   var g = arrumarEventos(eventosPorCal, calendarios, agora, avisosVistos);
@@ -1077,35 +1195,38 @@ function desenhar() {
   var tarefas = notas.filter(function (n) { return n.tipo !== 'facto'; });
   var factos = notas.filter(function (n) { return n.tipo === 'facto'; });
   var sugAbertas = Object.keys(sugestoes).filter(function (k) { return !tratados[k]; }).length;
-  var porTratar = g.aFechar.concat(g.prazos).filter(function (c) { return !tratados[c.id]; }).length + g.avisos.length + sugAbertas + tarefas.length;
-
-  document.getElementById('resumo').textContent = porTratar === 0
-    ? (g.hoje.length ? 'Nada pendente. ' + g.hoje.length + (g.hoje.length === 1 ? ' coisa hoje.' : ' coisas hoje.') : 'Nada pendente, dia livre.')
-    : porTratar === 1 ? 'Uma coisa à tua espera.' : porTratar + ' coisas à tua espera.';
-
-  var pendentes = g.aFechar.map(function (c) { return pendenciaHtml(c, 'fechar'); }).concat(g.prazos.map(function (c) { return pendenciaHtml(c, 'prazo'); })).join('');
-  var fechados = g.fechados.map(function (c) { return '<div class="fechado"><span class="hora">' + esc(dataCurta(c.dia)) + '</span><span>' + esc(c.titulo.replace(/^[✓✗]\s*/, '')) + '</span><span class="visto">✓</span></div>'; }).join('');
-  var factosHtml = factos.map(function (n) { return '<div class="facto"><span>' + esc(n.texto) + '</span>' + botao('esquecer', 'leve', { nota: n.id, cal: n.calId, texto: n.texto, accao: 'apagar' }) + '</div>'; }).join('');
-  var verificar = (sample && db && recebeuEmail && !triagemEmCurso) ? botao('Verificar agora', 'leve', { triar: '1' }) : '';
-
-  var html = '';
-  if (g.avisos.length) html += seccao('Atenção', g.avisos.length, '<p class="explica">Datas escritas dentro de eventos, que não são a data do evento — prazos escondidos.</p>' + g.avisos.map(avisoHtml).join(''), '');
-  html += seccao('A precisar de ti', g.aFechar.length + g.prazos.length, pendentes, 'Nada pendente. Está tudo fechado.');
   if (recebeuAgenda && memoria.estado === 'aLigar') memoria = { estado: 'pronta', erro: '' };
-  var estadoTarefas = estadoMemoria(memoria.estado, memoria.erro, 'Nada sem data. Diz "lembra-me de…" para pôr aqui.');
-  html += seccao('Para fazer', estadoTarefas.ok ? tarefas.length : '—', tarefas.map(tarefaHtml).join('') || estadoTarefas.html, '');
-  if (mcp && watchesFeitos.email) html += seccao('Do e-mail', sugAbertas, emailSeccao(), 'Nada de novo na caixa de entrada.', verificar);
-  html += seccao('Hoje', g.hoje.length, g.hoje.map(function (c) { return linhaHtml(c, false); }).join(''), 'Dia livre.');
-  html += seccao('Próximas duas semanas', g.proximos.length, g.proximos.map(function (c) { return linhaHtml(c, true); }).join(''), 'Nada marcado.');
-  html += seccao('Fechou sozinho', g.fechados.length, fechados ? '<p class="explica">Aconteceram por si. A data passou, não havia nada para confirmar.</p>' + fechados : '', 'Nada a assinalar.');
-  var estadoFactos = estadoMemoria(memoria.estado, memoria.erro, 'Ainda nada. Diz "lembra-te que…" e fica aqui, para sempre, até apagares.');
-  html += '<section><details' + (factos.length ? '' : ' open') + '><summary class="cabecalho-seccao"><h2><span class="seta">▶</span>O que sei</h2><span class="conta">' + (estadoFactos.ok ? factos.length : '—') + '</span></summary>' +
-    (factosHtml || estadoFactos.html) + '</details></section>';
+
+  var contas = contagens(g, tarefas, sugAbertas, factos);
+  desenharAbas(contas);
+
+  var porTratar = contas.fazer;
+  document.getElementById('resumo').textContent =
+    RESUMOS[abaActiva](g, porTratar, tarefas.length, sugAbertas, factos.length);
+
+  var html;
+  if (abaActiva === 'fazer') html = seccaoFazer(g, tarefas);
+  else if (abaActiva === 'email') {
+    var verificar = (sample && db && recebeuEmail && !triagemEmCurso) ? botao('Verificar agora', 'leve', { triar: '1' }) : '';
+    html = seccao('Da caixa de entrada', sugAbertas, emailSeccao(), 'Nada de novo na caixa de entrada.', verificar);
+  }
+  else if (abaActiva === 'memoria') html = seccaoMemoria(factos);
+  else html = seccaoHoje(g);
 
   document.getElementById('conteudo').innerHTML = html;
 }
 
-document.getElementById('conteudo').addEventListener('click', function (e) {
+document.getElementById('abas').addEventListener('click', function (e) {
+  var b = e.target.closest('.aba[data-aba]');
+  if (!b || b.dataset.aba === abaActiva) return;
+  abaActiva = b.dataset.aba;
+  try { localStorage.setItem('aba', abaActiva); } catch (erro) { /* sem armazenamento */ }
+  desenhar();
+  var m = document.querySelector('main');
+  if (m) m.scrollTop = 0;
+});
+
+document.querySelector('main').addEventListener('click', function (e) {
   var b = e.target.closest('button');
   if (!b || b.disabled) return;
   var d = b.dataset;

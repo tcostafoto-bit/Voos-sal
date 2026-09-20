@@ -8,14 +8,26 @@ const html = fs.readFileSync(new URL('./painel.html', import.meta.url), 'utf8');
 const js = html.slice(html.lastIndexOf('<script>') + 8, html.lastIndexOf('</' + 'script>'));
 
 // O script arranca sozinho e toca no DOM: dá-se-lhe um DOM de mentira.
-const elemento = () => ({ textContent: '', innerHTML: '', hidden: false, addEventListener() {}, classList: { add() {}, remove() {} } });
-const documento = { getElementById: elemento, addEventListener() {} };
-const janela = {};
+// Tem de responder a tudo o que o arranque toca — um null aqui rebenta o
+// ficheiro inteiro de testes e esconde o que eles tinham a dizer.
+const elemento = () => ({
+  textContent: '', innerHTML: '', hidden: false, dataset: {}, scrollTop: 0,
+  addEventListener() {}, setAttribute() {}, removeAttribute() {},
+  classList: { add() {}, remove() {} },
+  querySelector: () => elemento(), querySelectorAll: () => [],
+  closest: () => null, focus() {},
+});
+const documento = {
+  getElementById: elemento, querySelector: elemento, querySelectorAll: () => [],
+  addEventListener() {},
+};
+const janela = { localStorage: { getItem: () => null, setItem() {} } };
+globalThis.localStorage = janela.localStorage;
 const P = new Function('document', 'window', js + `
   return { semAcentos, ehTarefa, jaFechado, ehPrincipal, somarDias, difDias, diaISO, datasNoTexto,
            abrangeDia, jaPassou, diaDoExtremo, arrumarEventos, montarLoteTriagem, podarTurnos,
            trechoComData, somarMinutos, somarDiasRelogio, relogioDe, COLABORADORAS, MAX_THREADS,
-           estadoMemoria, ehNota, notasDeEventos, MARCA_NOTA, PREFIXO_TAREFA, PREFIXO_FACTO, DIA_GAVETA, DIAS_REPETICAO };
+           estadoMemoria, ehNota, notasDeEventos, contagens, ABAS, TITULOS, tratados, MARCA_NOTA, PREFIXO_TAREFA, PREFIXO_FACTO, DIA_GAVETA, DIAS_REPETICAO };
 `)(documento, janela);
 
 const HOJE = '2026-09-20';
@@ -277,4 +289,29 @@ test('notas: uma fechada sai da lista e fica como registo', () => {
 
 test('a repetição tem fim: uma tarefa esquecida não fica eterna', () => {
   assert.ok(P.DIAS_REPETICAO > 30 && P.DIAS_REPETICAO <= 366, 'repete-se o suficiente sem ser para sempre');
+});
+
+test('abas: os números são o que está à espera dele', () => {
+  const g = { hoje: [{ id: 'h1' }, { id: 'h2' }, { id: 'h3' }], aFechar: [{ id: 'a1' }],
+    prazos: [{ id: 'p1' }], avisos: [{ id: 'v1' }], proximos: [], fechados: [] };
+  const tarefas = [{ id: 't1' }];
+
+  const c = P.contagens(g, tarefas, 3, [{ id: 'f1' }, { id: 'f2' }]);
+  assert.equal(c.hoje, 3, 'os eventos do dia');
+  assert.equal(c.fazer, 4, 'uma passada, um prazo, um aviso, uma sem data');
+  assert.equal(c.email, 3);
+  assert.equal(c.memoria, 0, 'um facto não é para fazer: nunca leva número');
+
+  // Cada aba tem título e cada título tem aba.
+  assert.deepEqual(P.ABAS.slice().sort(), Object.keys(P.TITULOS).sort());
+  assert.deepEqual(P.ABAS.slice().sort(), Object.keys(c).sort());
+});
+
+test('abas: o que já foi tratado sai da conta', () => {
+  const g = { hoje: [], aFechar: [{ id: 'a1' }, { id: 'a2' }], prazos: [], avisos: [], proximos: [], fechados: [] };
+  assert.equal(P.contagens(g, [], 0, []).fazer, 2);
+  // O painel guarda o que o utilizador acabou de fechar; o número tem de acompanhar.
+  P.tratados.a1 = 'feito';
+  assert.equal(P.contagens(g, [], 0, []).fazer, 1, 'uma fechada, menos uma no número');
+  delete P.tratados.a1;
 });
