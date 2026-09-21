@@ -125,17 +125,49 @@ test('arrumar: um aviso já tratado não volta', () => {
   assert.equal(g.avisos.length, 0);
 });
 
-test('lote de triagem: exclui o já visto e o já sugerido, corta excertos', () => {
-  const threads = [
-    { id: 't1', messages: [{ id: 'm1', sender: 'A <a@x.pt>', subject: 'Um', snippet: 'x'.repeat(600), date: '2026-09-19T10:00:00Z', labelIds: ['UNREAD'] }] },
-    { id: 't2', messages: [{ id: 'm2', sender: 'B <b@x.pt>', subject: 'Dois', snippet: 'ok', date: '2026-09-19T10:00:00Z', labelIds: [] }] },
-    { id: 't3', messages: [{ id: 'm3', sender: 'C <c@x.pt>', subject: 'Três', snippet: 'ok', date: '2026-09-19T10:00:00Z', labelIds: [] }] },
-  ];
-  const lote = P.montarLoteTriagem(threads, { t2: '2026-09-19' }, { t3: {} });
-  assert.deepEqual(lote.map((l) => l.thread_id), ['t1']);
-  assert.equal(lote[0].excerto.length, 400);
+test('triagem: uma resposta nova numa conversa antiga volta a ser lida', () => {
+  // O caso real: o Rui escreveu a 3/09, o Tiago não respondeu, e a 21/09 o Rui
+  // voltou a escrever na MESMA conversa a pedir uma decisão. Com o visto por
+  // conversa, esse pedido era invisível para sempre.
+  const conversa = (ultimaId, etiquetas) => ({
+    id: 'rui', messages: [
+      { id: 'm1', sender: 'Rui <rui@x.pt>', subject: 'Resumo de diagnóstico', snippet: 'segue o diagnóstico', date: '2026-09-03T13:02:40Z', labelIds: ['INBOX'] },
+      { id: 'm2', sender: 'tcosta.foto@gmail.com', subject: 'Fwd', snippet: 'reencaminhado', date: '2026-09-03T15:33:31Z', labelIds: ['SENT'] },
+      { id: ultimaId, sender: 'Rui <rui@x.pt>', subject: 'Resumo de diagnóstico', snippet: 'Devo concluir que vão preferir ficar como estão?', date: '2026-09-21T06:00:14Z', labelIds: etiquetas },
+    ],
+  });
+
+  const vistos = { rui: 'm1' };                       // já vimos a primeira
+  const lote = P.montarLoteTriagem([conversa('m3', ['UNREAD', 'IMPORTANT', 'INBOX'])], vistos, {});
+  assert.equal(lote.length, 1, 'mensagem nova: volta a entrar');
+  assert.equal(lote[0].de, 'Rui <rui@x.pt>', 'quem conta é quem escreveu por último, não ele próprio');
+  assert.equal(lote[0].marcada_importante, true);
+  assert.equal(lote[0].resposta_numa_conversa, true);
+
+  // Já analisada nesta mensagem: não repete.
+  assert.equal(P.montarLoteTriagem([conversa('m3', ['INBOX'])], { rui: 'm3' }, {}).length, 0);
+  // Já sugerida nesta mensagem: também não.
+  assert.equal(P.montarLoteTriagem([conversa('m3', ['INBOX'])], {}, { rui: { ultimaMensagemId: 'm3' } }).length, 0);
+  // Mas uma sugestão de uma mensagem ANTERIOR não tapa a nova.
+  assert.equal(P.montarLoteTriagem([conversa('m4', ['INBOX'])], {}, { rui: { ultimaMensagemId: 'm3' } }).length, 1);
+});
+
+test('triagem: o que ele próprio enviou não conta como remetente', () => {
+  const so_enviados = { id: 'x', messages: [{ id: 's1', sender: 'tcosta.foto@gmail.com', snippet: 'eu', date: '', labelIds: ['SENT'] }] };
+  const lote = P.montarLoteTriagem([so_enviados], {}, {});
+  assert.equal(lote.length, 1, 'uma conversa só com enviados ainda assim é considerada, sem rebentar');
+  assert.equal(lote[0].ultima_mensagem_id, 's1');
+});
+
+test('triagem: corta excertos e usa as últimas mensagens', () => {
+  const t1 = { id: 't1', messages: [
+    { id: 'a', sender: 'A <a@x.pt>', subject: 'Um', snippet: 'x'.repeat(300), date: '', labelIds: ['UNREAD'] },
+    { id: 'b', sender: 'A <a@x.pt>', subject: 'Um', snippet: 'y'.repeat(300), date: '', labelIds: ['UNREAD'] },
+  ] };
+  const lote = P.montarLoteTriagem([t1], {}, {});
+  assert.equal(lote[0].excerto.length, 500);
   assert.equal(lote[0].nao_lida, true);
-  assert.equal(lote[0].ultima_mensagem_id, 'm1');
+  assert.equal(lote[0].ultima_mensagem_id, 'b');
 });
 
 test('lote de triagem: nunca mais do que o máximo', () => {
