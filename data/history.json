@@ -1502,5 +1502,19 @@
       "fonte": "Booking.com"
     },
     "totalPacote": 3142
+  },
+  {
+    "data": "2026-10-03T13:08:48.270Z",
+    "datas": {
+      "ida": "2027-02-04",
+      "volta": "2027-02-10"
+    },
+    "voo": {
+      "precoDireto": 686,
+      "companhia": "Tap Air Portugal",
+      "detalhe": "LIS 20:55 → SID 00:05"
+    },
+    "hotel": null,
+    "totalPacote": null
   }
 ]
