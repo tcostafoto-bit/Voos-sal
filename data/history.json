@@ -1598,5 +1598,23 @@
       "fonte": "Destinia"
     },
     "totalPacote": 3467
+  },
+  {
+    "data": "2026-10-09T15:04:16.138Z",
+    "datas": {
+      "ida": "2027-02-04",
+      "volta": "2027-02-10"
+    },
+    "voo": {
+      "precoDireto": 731,
+      "companhia": "Tap Air Portugal",
+      "detalhe": "LIS 20:55 → SID 00:05"
+    },
+    "hotel": {
+      "precoTotal": 2466,
+      "regime": "Tudo incluído",
+      "fonte": "Booking.com"
+    },
+    "totalPacote": 3197
   }
 ]
