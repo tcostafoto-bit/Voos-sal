@@ -12,7 +12,7 @@
     "quedaAlertaPct": 8,
     "destinos": [
       { "codigo": "MUC", "nome": "Munique", "maxEscalas": 0 },
-      { "codigo": "SZG", "nome": "Salzburgo", "maxEscalas": 1 }
+      { "codigo": "SZG", "nome": "Salzburgo", "maxEscalas": 0 }
     ],
     "sacoGolfe": {
       "trajetos": 2,

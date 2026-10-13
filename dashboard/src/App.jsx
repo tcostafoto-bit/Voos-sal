@@ -18,7 +18,7 @@ const RAW_BASE = `https://raw.githubusercontent.com/${REPO}/${BRANCH}/data`;
 const ALVO = 380;
 const DESTINOS = [
   { codigo: 'MUC', nome: 'Munique', regra: 'só diretos', cor: 'var(--accent)' },
-  { codigo: 'SZG', nome: 'Salzburgo', regra: 'até 1 escala', cor: '#f97316' },
+  { codigo: 'SZG', nome: 'Salzburgo', regra: 'só diretos', cor: '#f97316' },
 ];
 
 async function fetchJson(path) {

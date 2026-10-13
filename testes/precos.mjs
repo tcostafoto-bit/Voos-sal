@@ -200,6 +200,30 @@ test('resumo semanal diz o mínimo e quantas verificações já houve', () => {
   assert.match(msg, /2 verificações/);
 });
 
+// Este não testa código, testa o config.json a sério: é a rede de segurança
+// contra alguém mexer num número e o alerta passar a seguir outra viagem.
+test('o config.json em uso é a viagem que o Tiago pediu', async () => {
+  const { readFile } = await import('node:fs/promises');
+  const url = new URL('../config.json', import.meta.url);
+  const { viagem } = JSON.parse(await readFile(url, 'utf-8'));
+
+  assert.equal(viagem.origem, 'LIS');
+  assert.equal(viagem.adultos, 1);
+  assert.equal(viagem.criancas, 0);
+  assert.deepEqual(viagem.datas, { ida: '2027-07-08', volta: '2027-07-11' });
+  assert.equal(viagem.partidaIdaAte, '10:00');
+  assert.equal(viagem.alvoTotal, 380);
+  assert.equal(viagem.titulo, '⛳ Mondsee 8–11 jul');
+  assert.deepEqual(
+    viagem.destinos.map((d) => [d.codigo, d.maxEscalas]),
+    [['MUC', 0], ['SZG', 0]],
+    'os dois destinos são só diretos',
+  );
+  assert.equal(viagem.sacoGolfe.porTrajetoTap, 45);
+  assert.equal(viagem.sacoGolfe.porTrajetoOutras, 60);
+  assert.equal(viagem.sacoGolfe.trajetos, 2);
+});
+
 test('isSunday usa UTC', () => {
   assert.equal(P.isSunday(new Date('2026-10-18T00:00:00Z')), true);
   assert.equal(P.isSunday(new Date('2026-10-19T00:00:00Z')), false);

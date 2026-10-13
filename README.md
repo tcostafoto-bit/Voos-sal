@@ -10,7 +10,7 @@ Telegram quando há oportunidade.
 | | |
 |---|---|
 | Origem | LIS |
-| Destinos | MUC (só voos diretos) · SZG (até 1 escala) |
+| Destinos | MUC e SZG, **só voos diretos** |
 | Ida | 08/07/2027, só partidas **até às 10:00** |
 | Volta | 11/07/2027, qualquer hora |
 | Passageiros | 1 adulto |
@@ -35,9 +35,10 @@ confirmados. Quando confirmares o valor real, muda
 `viagem.sacoGolfe.porTrajetoOutras` no `config.json` e põe
 `confirmadoOutras: true`.
 
-Num itinerário com pernas de companhias diferentes (possível em Salzburgo, que
-aceita uma escala) o código assume a taxa **mais alta** das duas. É melhor ser
-surpreendido para baixo do que para cima.
+Num itinerário com pernas de companhias diferentes o código assume a taxa **mais
+alta** das duas. É melhor ser surpreendido para baixo do que para cima. Com os
+dois destinos a só diretos isto hoje não acontece, mas a regra fica no código
+para o dia em que voltarem a aceitar-se escalas.
 
 ## Quando é que recebes mensagem
 
@@ -86,8 +87,14 @@ errados.
 
 O filtro de escalas e de hora de partida da SerpAPI aplica-se à pesquisa toda,
 mas a resposta de ida-e-volta só detalha as pernas **da ida**. O código verifica
-no detalhe a ida (número de escalas e partida até às 10:00); na volta confia no
-filtro do Google. Antes de comprar, confirmar a volta na página da companhia.
+no detalhe a ida (direto e partida até às 10:00); na volta confia no filtro do
+Google. Antes de comprar, confirmar que a volta também é direta na página da
+companhia.
+
+Salzburgo quase não tem ligações diretas a partir de Lisboa. Se nas mensagens
+aparecer sempre "Salzburgo: sem voos que sirvam hoje", não é avaria do alerta —
+é que não há. Nesse caso vale a pena tirar SZG do `config.json` e seguir só
+Munique.
 
 ## Dashboard
 
