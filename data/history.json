@@ -1,1 +1,44 @@
-[]
+[
+  {
+    "data": "2026-10-13T20:48:19.537Z",
+    "datas": {
+      "ida": "2027-07-08",
+      "volta": "2027-07-11"
+    },
+    "destinos": {
+      "MUC": {
+        "precoVoo": 346,
+        "saco": 120,
+        "sacoPorTrajeto": 60,
+        "sacoConfirmado": false,
+        "total": 466,
+        "companhia": "Lufthansa",
+        "companhias": [
+          "Lufthansa"
+        ],
+        "escalas": 0,
+        "partidaIda": "06:15",
+        "detalhe": "LIS 06:15 → MUC 10:20"
+      },
+      "SZG": {
+        "precoVoo": 317,
+        "saco": 120,
+        "sacoPorTrajeto": 60,
+        "sacoConfirmado": false,
+        "total": 437,
+        "companhia": "Lufthansa",
+        "companhias": [
+          "Lufthansa",
+          "Lufthansa"
+        ],
+        "escalas": 1,
+        "partidaIda": "07:25",
+        "detalhe": "LIS 07:25 → SZG 22:15 via FRA"
+      }
+    },
+    "melhor": {
+      "codigo": "SZG",
+      "total": 437
+    }
+  }
+]
