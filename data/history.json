@@ -40,5 +40,33 @@
       "codigo": "SZG",
       "total": 437
     }
+  },
+  {
+    "data": "2026-10-13T20:57:57.326Z",
+    "datas": {
+      "ida": "2027-07-08",
+      "volta": "2027-07-11"
+    },
+    "destinos": {
+      "MUC": {
+        "precoVoo": 346,
+        "saco": 120,
+        "sacoPorTrajeto": 60,
+        "sacoConfirmado": false,
+        "total": 466,
+        "companhia": "Lufthansa",
+        "companhias": [
+          "Lufthansa"
+        ],
+        "escalas": 0,
+        "partidaIda": "06:15",
+        "detalhe": "LIS 06:15 → MUC 10:20"
+      },
+      "SZG": null
+    },
+    "melhor": {
+      "codigo": "MUC",
+      "total": 466
+    }
   }
 ]
