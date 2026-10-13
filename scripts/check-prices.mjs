@@ -1,29 +1,227 @@
 #!/usr/bin/env node
-// Verificação diária de preços voo+hotel Lisboa->Sal via SerpAPI, com alertas no Telegram.
+// Verificação diária de preços de voo Lisboa → Munique / Salzburgo (viagem de
+// golfe a Mondsee), via SerpAPI, com alertas no Telegram.
+//
+// O preço que conta é sempre voo + saco de golfe. Um voo barato numa companhia
+// que cobra 60 €/trajeto pelo saco pode sair mais caro que um voo da TAP.
 
 import { readFile, writeFile } from 'node:fs/promises';
 import { fileURLToPath } from 'node:url';
 import path from 'node:path';
 
-const __dirname = path.dirname(fileURLToPath(import.meta.url));
+const ESTE_FICHEIRO = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(ESTE_FICHEIRO);
 const ROOT = path.resolve(__dirname, '..');
 const CONFIG_PATH = path.join(ROOT, 'config.json');
 const HISTORY_PATH = path.join(ROOT, 'data', 'history.json');
-const HISTORY_ALT_PATH = path.join(ROOT, 'data', 'history-alternativas.json');
 const ERROR_STATE_PATH = path.join(ROOT, 'data', 'error-state.json');
 
 const SERPAPI_KEY = process.env.SERPAPI_KEY;
 const TELEGRAM_BOT_TOKEN = process.env.TELEGRAM_BOT_TOKEN;
 const TELEGRAM_CHAT_ID = process.env.TELEGRAM_CHAT_ID;
+// Numa execução à mão queremos a mensagem mesmo sem gatilho de compra.
+const FORCAR_MENSAGEM = process.env.FORCAR_MENSAGEM === '1';
 
-function isSunday(date) {
+// ─── Funções puras (testadas em testes/precos.mjs) ──────────────────────────
+
+export function isSunday(date) {
   return date.getUTCDay() === 0;
 }
 
+// A SerpAPI devolve "2027-07-08 07:15". Fica só "07:15".
+export function horaDe(datetime) {
+  if (!datetime) return '';
+  return String(datetime).split(' ')[1]?.slice(0, 5) ?? '';
+}
+
+export function horaEmMinutos(hora) {
+  const m = /^(\d{1,2}):(\d{2})$/.exec(String(hora || '').trim());
+  if (!m) return null;
+  return Number(m[1]) * 60 + Number(m[2]);
+}
+
+export function eTap(companhia) {
+  return /\btap\b/i.test(String(companhia || ''));
+}
+
+// O saco é por trajeto. 45 € na TAP, 60 € nas outras até o Tiago confirmar.
+// Se um itinerário tiver pernas de companhias diferentes, vale a taxa mais
+// alta — nunca prometer o preço bom sem o ter.
+export function taxaSaco(companhias, saco) {
+  const lista = (companhias || []).filter(Boolean);
+  const tudoTap = lista.length > 0 && lista.every(eTap);
+  const porTrajeto = tudoTap ? saco.porTrajetoTap : saco.porTrajetoOutras;
+  return {
+    total: porTrajeto * saco.trajetos,
+    porTrajeto,
+    tap: tudoTap,
+    // Na TAP o valor está confirmado; nas outras é uma estimativa.
+    confirmado: tudoTap ? true : Boolean(saco.confirmadoOutras),
+  };
+}
+
+// Escolhe o itinerário mais barato *já com o saco*, entre os que cumprem as
+// regras do destino (escalas e hora de partida da ida).
+export function escolherMelhor(itinerarios, regras, saco) {
+  const limite = horaEmMinutos(regras.partidaIdaAte);
+  const validos = [];
+
+  for (const it of itinerarios || []) {
+    const pernas = Array.isArray(it?.flights) ? it.flights : [];
+    if (pernas.length === 0 || typeof it.price !== 'number') continue;
+
+    const escalas = pernas.length - 1;
+    if (escalas > regras.maxEscalas) continue;
+
+    const partida = horaDe(pernas[0].departure_airport?.time);
+    const minutos = horaEmMinutos(partida);
+    if (limite != null && (minutos == null || minutos > limite)) continue;
+
+    const companhias = pernas.map((p) => p.airline);
+    const s = taxaSaco(companhias, saco);
+    validos.push({
+      precoVoo: it.price,
+      saco: s.total,
+      sacoPorTrajeto: s.porTrajeto,
+      sacoConfirmado: s.confirmado,
+      total: it.price + s.total,
+      companhia: companhias[0] ?? null,
+      companhias,
+      escalas,
+      partidaIda: partida,
+      detalhe: resumoItinerario(pernas),
+    });
+  }
+
+  if (validos.length === 0) return null;
+  return validos.reduce((min, c) => (c.total < min.total ? c : min), validos[0]);
+}
+
+export function resumoItinerario(pernas) {
+  const primeira = pernas[0];
+  const ultima = pernas[pernas.length - 1];
+  const de = `${primeira.departure_airport?.id ?? '?'} ${horaDe(primeira.departure_airport?.time)}`;
+  const para = `${ultima.arrival_airport?.id ?? '?'} ${horaDe(ultima.arrival_airport?.time)}`;
+  const escalas = pernas.length - 1;
+  const via = escalas > 0 ? ` via ${pernas.slice(0, -1).map((p) => p.arrival_airport?.id ?? '?').join(', ')}` : '';
+  return `${de} → ${para}${via}`;
+}
+
+// Qual dos destinos sai mais barato, contando o saco.
+export function destinoMaisBarato(destinos) {
+  let melhor = null;
+  for (const [codigo, d] of Object.entries(destinos || {})) {
+    if (!d || typeof d.total !== 'number') continue;
+    if (melhor == null || d.total < melhor.total) melhor = { codigo, total: d.total };
+  }
+  return melhor;
+}
+
+export function mediaUltimos(historico, n = 7) {
+  const valores = historico
+    .slice(-n)
+    .map((r) => r.melhor?.total)
+    .filter((v) => typeof v === 'number');
+  if (valores.length === 0) return null;
+  return valores.reduce((a, b) => a + b, 0) / valores.length;
+}
+
+export function minimoHistorico(historico) {
+  const valores = historico.map((r) => r.melhor?.total).filter((v) => typeof v === 'number');
+  if (valores.length === 0) return null;
+  return Math.min(...valores);
+}
+
+export function construirAlertas(config, registo, historico) {
+  const alertas = [];
+  const total = registo.melhor?.total;
+  if (typeof total !== 'number') return alertas;
+
+  if (total <= config.viagem.alvoTotal) alertas.push('COMPRAR');
+
+  const media = mediaUltimos(historico);
+  if (media != null) {
+    const quedaPct = ((media - total) / media) * 100;
+    if (quedaPct >= config.viagem.quedaAlertaPct) alertas.push('DESCIDA');
+  }
+
+  return alertas;
+}
+
+function euros(v) {
+  return `${Number(v).toLocaleString('pt-PT')} €`;
+}
+
+function nomeDestino(config, codigo) {
+  return config.viagem.destinos.find((d) => d.codigo === codigo)?.nome ?? codigo;
+}
+
+function linhaDestino(config, codigo, d, maisBarato) {
+  const nome = nomeDestino(config, codigo);
+  if (!d) return `${nome}: sem voos que sirvam hoje`;
+
+  const escalas = d.escalas === 0 ? 'direto' : `${d.escalas} escala${d.escalas > 1 ? 's' : ''}`;
+  const marca = maisBarato === codigo ? '  ← mais barato' : '';
+  const porConfirmar = d.sacoConfirmado ? '' : ' (saco a confirmar)';
+  return [
+    `${nome} (${escalas}): ${euros(d.precoVoo)} + saco ${euros(d.saco)} = ${euros(d.total)}${marca}`,
+    `  ${d.companhia ?? 'companhia n/d'} · ${d.detalhe}${porConfirmar}`,
+  ].join('\n');
+}
+
+export function formatarMensagem(config, registo, historico, alertas) {
+  const linhas = [config.viagem.titulo];
+  const maisBarato = registo.melhor?.codigo ?? null;
+
+  for (const destino of config.viagem.destinos) {
+    linhas.push(linhaDestino(config, destino.codigo, registo.destinos[destino.codigo], maisBarato));
+  }
+
+  const minimo = minimoHistorico(historico);
+  const media = mediaUltimos(historico);
+  let tendencia = '';
+  if (media != null && registo.melhor?.total != null) {
+    const pct = Math.round(((media - registo.melhor.total) / media) * 100);
+    if (pct > 0) tendencia = ` · ▼ ${pct}% vs média 7d`;
+    else if (pct < 0) tendencia = ` · ▲ ${Math.abs(pct)}% vs média 7d`;
+  }
+  linhas.push(
+    `Alvo ${euros(config.viagem.alvoTotal)} · mín. histórico ${minimo != null ? euros(minimo) : 'n/d'}${tendencia}`,
+  );
+
+  if (alertas.includes('COMPRAR')) linhas.push('→ COMPRAR');
+  else if (alertas.includes('DESCIDA')) linhas.push('→ Descida relevante, vale a pena olhar');
+  else linhas.push('→ Sem gatilho de compra.');
+
+  return linhas.join('\n');
+}
+
+export function formatarResumoSemanal(config, registo, historico) {
+  const linhas = [`📊 Resumo semanal · ${config.viagem.nome}`];
+  const maisBarato = registo.melhor?.codigo ?? null;
+
+  for (const destino of config.viagem.destinos) {
+    const d = registo.destinos[destino.codigo];
+    linhas.push(
+      d
+        ? `${destino.nome}: ${euros(d.total)}${maisBarato === destino.codigo ? ' ← mais barato' : ''}`
+        : `${destino.nome}: sem voos que sirvam`,
+    );
+  }
+
+  const minimo = minimoHistorico(historico);
+  const media = mediaUltimos(historico);
+  linhas.push(`Mín. histórico ${minimo != null ? euros(minimo) : 'n/d'} · média 7d ${media != null ? euros(Math.round(media)) : 'n/d'}`);
+  linhas.push(`${historico.length} verificações até agora.`);
+
+  return linhas.join('\n');
+}
+
+// ─── Lado de fora: rede e ficheiros ─────────────────────────────────────────
+
 async function readJson(filePath, fallback) {
   try {
-    const raw = await readFile(filePath, 'utf-8');
-    return JSON.parse(raw);
+    return JSON.parse(await readFile(filePath, 'utf-8'));
   } catch (err) {
     if (err.code === 'ENOENT') return fallback;
     throw err;
@@ -40,324 +238,127 @@ async function serpApiGet(params) {
   url.searchParams.set('api_key', SERPAPI_KEY);
 
   const res = await fetch(url);
-  if (!res.ok) {
-    throw new Error(`SerpAPI HTTP ${res.status}: ${await res.text()}`);
-  }
+  if (!res.ok) throw new Error(`SerpAPI HTTP ${res.status}: ${await res.text()}`);
   return res.json();
 }
 
-async function fetchVoo({ origem, destino, adultos, criancas, moeda }, ida, volta) {
-  try {
-    const data = await serpApiGet({
-      engine: 'google_flights',
-      departure_id: origem,
-      arrival_id: destino,
-      outbound_date: ida,
-      return_date: volta,
-      adults: String(adultos),
-      children: String(criancas),
-      currency: moeda,
-      hl: 'pt',
-      gl: 'pt',
-      type: '1', // round trip
-    });
+async function fetchVoo(viagem, destino) {
+  const { ida, volta } = viagem.datas;
+  // O filtro da SerpAPI é por hora inteira ("0,10" = 00:00 às 10:59), por isso
+  // pedimos a janela larga e cortamos a 10:00 exatas aqui no código.
+  const limite = horaEmMinutos(viagem.partidaIdaAte);
+  const horaMax = limite != null ? Math.min(23, Math.ceil(limite / 60)) : null;
 
-    const candidatos = [...(data.best_flights || []), ...(data.other_flights || [])];
-    const diretos = candidatos.filter((f) => Array.isArray(f.flights) && f.flights.length === 1);
+  const params = {
+    engine: 'google_flights',
+    departure_id: viagem.origem,
+    arrival_id: destino.codigo,
+    outbound_date: ida,
+    return_date: volta,
+    adults: String(viagem.adultos),
+    children: String(viagem.criancas ?? 0),
+    currency: viagem.moeda,
+    hl: 'pt',
+    gl: 'pt',
+    type: '1', // ida e volta
+    // 1 = só diretos, 2 = até 1 escala, 3 = até 2 escalas.
+    stops: String(destino.maxEscalas + 1),
+  };
+  if (horaMax != null) params.outbound_times = `0,${horaMax}`;
 
-    if (diretos.length === 0) return null;
-
-    const melhor = diretos.reduce((min, f) => (f.price < min.price ? f : min), diretos[0]);
-    const perna = melhor.flights[0];
-
-    return {
-      precoDireto: melhor.price,
-      companhia: perna.airline,
-      detalhe: `${perna.departure_airport?.id ?? origem} ${formatHora(perna.departure_airport?.time)} → ${perna.arrival_airport?.id ?? destino} ${formatHora(perna.arrival_airport?.time)}`,
-    };
-  } catch (err) {
-    console.error('Erro ao consultar voo:', err.message);
-    return null;
-  }
-}
-
-function formatHora(datetime) {
-  if (!datetime) return '';
-  const parts = datetime.split(' ');
-  return parts[1]?.slice(0, 5) ?? '';
-}
-
-async function fetchHotel({ nome, cidade, noites, adultos, criancas, idadesCriancas, propertyToken, moeda }, checkIn, checkOut) {
-  try {
-    const params = {
-      engine: 'google_hotels',
-      q: `${nome} ${cidade}`,
-      check_in_date: checkIn,
-      check_out_date: checkOut,
-      adults: String(adultos),
-      children: String(criancas),
-      currency: moeda,
-      hl: 'pt',
-      gl: 'pt',
-    };
-    if (criancas > 0 && idadesCriancas?.length) {
-      params.children_ages = idadesCriancas.join(',');
-    }
-    if (propertyToken) {
-      params.property_token = propertyToken;
-    }
-    const data = await serpApiGet(params);
-
-    // Com property_token, a resposta é a propriedade única (não uma lista).
-    const prop = propertyToken ? data : (data.properties || []).find((p) => p.name?.toLowerCase().includes('melia')) ?? data.properties?.[0];
-    if (!prop) return null;
-
-    const pax = adultos + criancas;
-    const fontes = (data.prices || prop.prices || []).filter((s) => s.total_rate?.extracted_lowest != null);
-
-    let melhorFonte = null;
-    if (fontes.length > 0) {
-      // Preferir a fonte oficial do hotel com a ocupação correta; senão, a mais barata com ocupação correta; senão, a mais barata disponível.
-      const comOcupacaoCerta = fontes.filter((s) => s.num_guests === pax);
-      const candidatas = comOcupacaoCerta.length > 0 ? comOcupacaoCerta : fontes;
-      melhorFonte =
-        candidatas.find((s) => s.official) ??
-        candidatas.reduce((min, s) => (s.total_rate.extracted_lowest < min.total_rate.extracted_lowest ? s : min), candidatas[0]);
-    }
-
-    const total = melhorFonte?.total_rate?.extracted_lowest ?? prop.total_rate?.extracted_lowest ?? null;
-    const rate = melhorFonte?.rate_per_night?.extracted_lowest ?? prop.rate_per_night?.extracted_lowest ?? null;
-
-    let precoTotal;
-    let base;
-    if (total != null) {
-      precoTotal = total;
-      base = 'total';
-    } else if (rate != null) {
-      precoTotal = rate * noites;
-      base = 'por_noite_multiplicado';
-    } else {
-      return null;
-    }
-
-    const regime = (prop.amenities || []).find((a) => /all.inclusive|tudo inclu/i.test(a)) ? 'Tudo incluído' : null;
-
-    return { precoTotal, regime, baseCalculo: base, fonte: melhorFonte?.source ?? null };
-  } catch (err) {
-    console.error('Erro ao consultar hotel:', err.message);
-    return null;
-  }
+  const data = await serpApiGet(params);
+  const candidatos = [...(data.best_flights || []), ...(data.other_flights || [])];
+  return escolherMelhor(candidatos, {
+    maxEscalas: destino.maxEscalas,
+    partidaIdaAte: viagem.partidaIdaAte,
+  }, viagem.sacoGolfe);
 }
 
 async function enviarTelegram(mensagem) {
   if (!TELEGRAM_BOT_TOKEN || !TELEGRAM_CHAT_ID) {
     console.warn('Telegram não configurado, a saltar envio.');
+    console.log('--- mensagem que teria sido enviada ---\n' + mensagem);
     return;
   }
-  const url = `https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage`;
-  const res = await fetch(url, {
+  const res = await fetch(`https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ chat_id: TELEGRAM_CHAT_ID, text: mensagem }),
   });
-  if (!res.ok) {
-    console.error('Falha ao enviar Telegram:', await res.text());
+  if (!res.ok) console.error('Falha ao enviar Telegram:', await res.text());
+}
+
+async function verificar(viagem) {
+  const destinos = {};
+  const falhas = [];
+
+  for (const destino of viagem.destinos) {
+    try {
+      destinos[destino.codigo] = await fetchVoo(viagem, destino);
+    } catch (err) {
+      console.error(`Erro ao consultar ${destino.codigo}:`, err.message);
+      destinos[destino.codigo] = null;
+      falhas.push(`${destino.codigo}: ${err.message}`);
+    }
   }
-}
-
-function mediaUltimos(historico, campo, subcampo, n = 7) {
-  const valores = historico
-    .slice(-n)
-    .map((r) => r[campo]?.[subcampo])
-    .filter((v) => typeof v === 'number');
-  if (valores.length === 0) return null;
-  return valores.reduce((a, b) => a + b, 0) / valores.length;
-}
-
-function minimoHistorico(historico, campo, subcampo) {
-  const valores = historico.map((r) => r[campo]?.[subcampo]).filter((v) => typeof v === 'number');
-  if (valores.length === 0) return null;
-  return Math.min(...valores);
-}
-
-async function verificarDatas(config, ida, volta) {
-  const voo = await fetchVoo(config.voo, ida, volta);
-  const hotel = await fetchHotel(config.hotel, ida, volta);
-
-  const totalPacote = voo?.precoDireto != null && hotel?.precoTotal != null ? voo.precoDireto + hotel.precoTotal : null;
 
   return {
-    data: new Date().toISOString(),
-    datas: { ida, volta },
-    voo: voo ?? null,
-    hotel: hotel ? { precoTotal: hotel.precoTotal, regime: hotel.regime, fonte: hotel.fonte } : null,
-    totalPacote,
+    registo: {
+      data: new Date().toISOString(),
+      datas: { ...viagem.datas },
+      destinos,
+      melhor: destinoMaisBarato(destinos),
+    },
+    falhas,
   };
-}
-
-function construirAlertas(config, registo, historico) {
-  const alertas = [];
-
-  if (registo.voo?.precoDireto != null && registo.voo.precoDireto <= config.voo.alvoTotal) {
-    alertas.push('COMPRAR_VOO');
-  }
-
-  if (config.hotel.alvoTotal != null && registo.hotel?.precoTotal != null && registo.hotel.precoTotal <= config.hotel.alvoTotal) {
-    alertas.push('COMPRAR_HOTEL');
-  }
-
-  const mediaVoo = mediaUltimos(historico, 'voo', 'precoDireto');
-  if (mediaVoo != null && registo.voo?.precoDireto != null) {
-    const quedaPct = ((mediaVoo - registo.voo.precoDireto) / mediaVoo) * 100;
-    if (quedaPct >= config.voo.quedaAlertaPct) alertas.push('DESCIDA_VOO');
-  }
-
-  const mediaHotel = mediaUltimos(historico, 'hotel', 'precoTotal');
-  if (mediaHotel != null && registo.hotel?.precoTotal != null) {
-    const quedaPct = ((mediaHotel - registo.hotel.precoTotal) / mediaHotel) * 100;
-    if (quedaPct >= config.hotel.quedaAlertaPct) alertas.push('DESCIDA_HOTEL');
-  }
-
-  return alertas;
-}
-
-function formatarMensagemPrincipal(registo, alertas, historico) {
-  const { ida, volta } = registo.datas;
-  const diaIda = ida.slice(8, 10);
-  const mesIda = ida.slice(5, 7);
-  const diaVolta = volta.slice(8, 10);
-
-  const linhas = [`✈️🏨 Sal ${diaIda}–${diaVolta} fev · 3 pax`];
-
-  if (registo.voo) {
-    const mediaVoo = mediaUltimos(historico, 'voo', 'precoDireto');
-    let seta = '';
-    if (mediaVoo != null) {
-      const pct = Math.round(((mediaVoo - registo.voo.precoDireto) / mediaVoo) * 100);
-      if (pct > 0) seta = ` ▼ ${pct}%`;
-      else if (pct < 0) seta = ` ▲ ${Math.abs(pct)}%`;
-    }
-    linhas.push(`Voo direto: ${registo.voo.precoDireto} € (${registo.voo.companhia})${seta}`);
-  } else {
-    linhas.push('Voo direto: sem resultados hoje');
-  }
-
-  if (registo.hotel) {
-    linhas.push(`Hotel Meliá Dunas: ${registo.hotel.precoTotal.toLocaleString('pt-PT')} €`);
-  } else {
-    linhas.push('Hotel Meliá Dunas: sem resultados hoje');
-  }
-
-  if (registo.totalPacote != null) {
-    linhas.push(`Pacote total: ${registo.totalPacote.toLocaleString('pt-PT')} €`);
-  }
-
-  if (alertas.includes('COMPRAR_VOO')) linhas.push('→ COMPRAR VOO');
-  if (alertas.includes('COMPRAR_HOTEL')) linhas.push('→ COMPRAR HOTEL');
-  if (alertas.some((a) => a.startsWith('DESCIDA')) && !alertas.some((a) => a.startsWith('COMPRAR'))) {
-    linhas.push('→ Descida relevante, vale a pena olhar');
-  }
-
-  return linhas.join('\n');
-}
-
-function formatarResumoSemanal(config, registoRef, historico, resultadosAlt) {
-  const { ida, volta } = registoRef.datas;
-  const linhas = ['📊 Resumo semanal · Sal'];
-
-  const vooRef = registoRef.voo?.precoDireto != null ? `${registoRef.voo.precoDireto} €` : 'n/d';
-  const hotelRef = registoRef.hotel?.precoTotal != null ? `${registoRef.hotel.precoTotal} €` : 'n/d';
-  linhas.push(`Ref. (${ida.slice(8, 10)}–${volta.slice(8, 10)} fev): voo ${vooRef} · hotel ${hotelRef}`);
-
-  if (resultadosAlt && resultadosAlt.length > 0) {
-    const refTotal = registoRef.totalPacote;
-    let maisBarata = null;
-    for (const alt of resultadosAlt) {
-      const vooAlt = alt.voo?.precoDireto != null ? `${alt.voo.precoDireto} €` : 'n/d';
-      const hotelAlt = alt.hotel?.precoTotal != null ? `${alt.hotel.precoTotal} €` : 'n/d';
-      const isMaisBarata = refTotal != null && alt.totalPacote != null && alt.totalPacote < refTotal;
-      if (isMaisBarata && (maisBarata == null || alt.totalPacote < maisBarata)) maisBarata = alt.totalPacote;
-      linhas.push(
-        `Alt. (${alt.datas.ida.slice(8, 10)}–${alt.datas.volta.slice(8, 10)} fev): voo ${vooAlt} · hotel ${hotelAlt}${isMaisBarata ? ' ← mais barato' : ''}`,
-      );
-    }
-  }
-
-  const semGatilho = 'Sem gatilho de compra.';
-  const minVoo = minimoHistorico(historico, 'voo', 'precoDireto');
-  linhas.push(`${semGatilho} Mín. histórico voo: ${minVoo != null ? minVoo + ' €' : 'n/d'}`);
-
-  return linhas.join('\n');
 }
 
 async function main() {
   const config = await readJson(CONFIG_PATH, null);
-  if (!config) throw new Error('config.json não encontrado.');
+  if (!config?.viagem) throw new Error('config.json sem a secção "viagem".');
+  const { viagem } = config;
 
-  let historico = await readJson(HISTORY_PATH, []);
-  const historicoAlt = await readJson(HISTORY_ALT_PATH, []);
+  const historico = await readJson(HISTORY_PATH, []);
   const errorState = await readJson(ERROR_STATE_PATH, { falhasSeguidas: 0 });
 
-  const { ida, volta } = config.datasReferencia;
-  let registo;
-  try {
-    registo = await verificarDatas(config, ida, volta);
-  } catch (err) {
-    errorState.falhasSeguidas = (errorState.falhasSeguidas || 0) + 1;
-    await writeJson(ERROR_STATE_PATH, errorState);
-    if (errorState.falhasSeguidas >= 2) {
-      await enviarTelegram(`⚠️ Alerta Voos Sal: falha na SerpAPI em ${errorState.falhasSeguidas} execuções seguidas.\n${err.message}`);
-    }
-    throw err;
-  }
+  const { registo, falhas } = await verificar(viagem);
+  const semNada = Object.values(registo.destinos).every((d) => d == null);
 
-  const falhouTotal = registo.voo == null && registo.hotel == null;
-  if (falhouTotal) {
+  if (semNada) {
     errorState.falhasSeguidas = (errorState.falhasSeguidas || 0) + 1;
     if (errorState.falhasSeguidas >= 2) {
-      await enviarTelegram(`⚠️ Alerta Voos Sal: sem resultados (voo e hotel) em ${errorState.falhasSeguidas} execuções seguidas.`);
+      await enviarTelegram(
+        `⚠️ ${viagem.titulo}\nSem resultados em ${errorState.falhasSeguidas} execuções seguidas.` +
+          (falhas.length ? `\n${falhas.join('\n')}` : ''),
+      );
     }
   } else {
     errorState.falhasSeguidas = 0;
   }
   await writeJson(ERROR_STATE_PATH, errorState);
 
+  // Os alertas comparam-se com o histórico *antes* deste registo.
   const alertas = construirAlertas(config, registo, historico);
-  historico.push(registo);
+  const domingo = isSunday(new Date());
 
-  const hoje = new Date();
-  const domingo = isSunday(hoje);
-
-  let resultadosAlt = [];
-  if (domingo && config.datasAlternativas?.length) {
-    for (const alt of config.datasAlternativas) {
-      try {
-        const registoAlt = await verificarDatas(config, alt.ida, alt.volta);
-        resultadosAlt.push(registoAlt);
-      } catch (err) {
-        console.error('Erro ao verificar data alternativa:', alt, err.message);
-      }
-    }
-    if (resultadosAlt.length > 0) {
-      historicoAlt.push(...resultadosAlt);
-      await writeJson(HISTORY_ALT_PATH, historicoAlt);
-    }
+  if (alertas.length > 0 || FORCAR_MENSAGEM) {
+    await enviarTelegram(formatarMensagem(config, registo, historico, alertas));
+  }
+  if (domingo) {
+    await enviarTelegram(formatarResumoSemanal(config, registo, historico));
   }
 
+  historico.push(registo);
   await writeJson(HISTORY_PATH, historico);
 
-  if (alertas.length > 0) {
-    await enviarTelegram(formatarMensagemPrincipal(registo, alertas, historico.slice(0, -1)));
-  }
-
-  if (domingo) {
-    await enviarTelegram(formatarResumoSemanal(config, registo, historico.slice(0, -1), resultadosAlt));
-  }
-
   console.log('Verificação concluída.', JSON.stringify(registo, null, 2));
+  if (semNada) process.exitCode = 1;
 }
 
-main().catch((err) => {
-  console.error(err);
-  process.exitCode = 1;
-});
+// Só corre quando é chamado como programa; nos testes é só importado.
+if (process.argv[1] && path.resolve(process.argv[1]) === ESTE_FICHEIRO) {
+  main().catch((err) => {
+    console.error(err);
+    process.exitCode = 1;
+  });
+}

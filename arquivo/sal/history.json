@@ -1,0 +1,1266 @@
+[
+  {
+    "data": "2026-07-07T15:31:10.388Z",
+    "datas": {
+      "ida": "2027-02-04",
+      "volta": "2027-02-10"
+    },
+    "voo": {
+      "precoDireto": 772,
+      "companhia": "easyJet",
+      "detalhe": "LIS 13:10 → SID 16:30"
+    },
+    "hotel": {
+      "precoTotal": 1903,
+      "regime": "Tudo incluído",
+      "fonte": "Meliá Dunas Beach Resort & Spa All Inclusive"
+    },
+    "totalPacote": 2675
+  },
+  {
+    "data": "2026-07-08T15:54:45.907Z",
+    "datas": {
+      "ida": "2027-02-04",
+      "volta": "2027-02-10"
+    },
+    "voo": {
+      "precoDireto": 772,
+      "companhia": "easyJet",
+      "detalhe": "LIS 13:10 → SID 16:30"
+    },
+    "hotel": {
+      "precoTotal": 2491,
+      "regime": "Tudo incluído",
+      "fonte": "Booking.com"
+    },
+    "totalPacote": 3263
+  },
+  {
+    "data": "2026-07-09T17:08:00.275Z",
+    "datas": {
+      "ida": "2027-02-04",
+      "volta": "2027-02-10"
+    },
+    "voo": {
+      "precoDireto": 772,
+      "companhia": "easyJet",
+      "detalhe": "LIS 13:10 → SID 16:30"
+    },
+    "hotel": {
+      "precoTotal": 2487,
+      "regime": "Tudo incluído",
+      "fonte": "Booking.com"
+    },
+    "totalPacote": 3259
+  },
+  {
+    "data": "2026-07-10T16:35:27.782Z",
+    "datas": {
+      "ida": "2027-02-04",
+      "volta": "2027-02-10"
+    },
+    "voo": {
+      "precoDireto": 772,
+      "companhia": "easyJet",
+      "detalhe": "LIS 13:10 → SID 16:30"
+    },
+    "hotel": {
+      "precoTotal": 2488,
+      "regime": "Tudo incluído",
+      "fonte": "Booking.com"
+    },
+    "totalPacote": 3260
+  },
+  {
+    "data": "2026-07-11T11:32:59.331Z",
+    "datas": {
+      "ida": "2027-02-04",
+      "volta": "2027-02-10"
+    },
+    "voo": {
+      "precoDireto": 732,
+      "companhia": "easyJet",
+      "detalhe": "LIS 13:10 → SID 16:30"
+    },
+    "hotel": null,
+    "totalPacote": null
+  },
+  {
+    "data": "2026-07-12T11:44:54.368Z",
+    "datas": {
+      "ida": "2027-02-04",
+      "volta": "2027-02-10"
+    },
+    "voo": {
+      "precoDireto": 772,
+      "companhia": "easyJet",
+      "detalhe": "LIS 13:10 → SID 16:30"
+    },
+    "hotel": {
+      "precoTotal": 2491,
+      "regime": "Tudo incluído",
+      "fonte": "Booking.com"
+    },
+    "totalPacote": 3263
+  },
+  {
+    "data": "2026-07-13T16:58:33.114Z",
+    "datas": {
+      "ida": "2027-02-04",
+      "volta": "2027-02-10"
+    },
+    "voo": {
+      "precoDireto": 786,
+      "companhia": "easyJet",
+      "detalhe": "LIS 13:10 → SID 16:30"
+    },
+    "hotel": {
+      "precoTotal": 2496,
+      "regime": "Tudo incluído",
+      "fonte": "Booking.com"
+    },
+    "totalPacote": 3282
+  },
+  {
+    "data": "2026-07-14T12:49:58.766Z",
+    "datas": {
+      "ida": "2027-02-04",
+      "volta": "2027-02-10"
+    },
+    "voo": {
+      "precoDireto": 786,
+      "companhia": "easyJet",
+      "detalhe": "LIS 13:10 → SID 16:30"
+    },
+    "hotel": {
+      "precoTotal": 2488,
+      "regime": "Tudo incluído",
+      "fonte": "Booking.com"
+    },
+    "totalPacote": 3274
+  },
+  {
+    "data": "2026-07-15T12:55:02.005Z",
+    "datas": {
+      "ida": "2027-02-04",
+      "volta": "2027-02-10"
+    },
+    "voo": {
+      "precoDireto": 774,
+      "companhia": "easyJet",
+      "detalhe": "LIS 13:10 → SID 16:30"
+    },
+    "hotel": {
+      "precoTotal": 2492,
+      "regime": "Tudo incluído",
+      "fonte": "Booking.com"
+    },
+    "totalPacote": 3266
+  },
+  {
+    "data": "2026-07-16T13:06:31.532Z",
+    "datas": {
+      "ida": "2027-02-04",
+      "volta": "2027-02-10"
+    },
+    "voo": {
+      "precoDireto": 774,
+      "companhia": "easyJet",
+      "detalhe": "LIS 13:10 → SID 16:30"
+    },
+    "hotel": null,
+    "totalPacote": null
+  },
+  {
+    "data": "2026-07-17T12:19:29.423Z",
+    "datas": {
+      "ida": "2027-02-04",
+      "volta": "2027-02-10"
+    },
+    "voo": {
+      "precoDireto": 774,
+      "companhia": "easyJet",
+      "detalhe": "LIS 13:10 → SID 16:30"
+    },
+    "hotel": {
+      "precoTotal": 2494,
+      "regime": "Tudo incluído",
+      "fonte": "Booking.com"
+    },
+    "totalPacote": 3268
+  },
+  {
+    "data": "2026-07-18T11:32:23.735Z",
+    "datas": {
+      "ida": "2027-02-04",
+      "volta": "2027-02-10"
+    },
+    "voo": {
+      "precoDireto": 774,
+      "companhia": "easyJet",
+      "detalhe": "LIS 13:10 → SID 16:30"
+    },
+    "hotel": {
+      "precoTotal": 2491,
+      "regime": "Tudo incluído",
+      "fonte": "Booking.com"
+    },
+    "totalPacote": 3265
+  },
+  {
+    "data": "2026-07-19T11:41:08.889Z",
+    "datas": {
+      "ida": "2027-02-04",
+      "volta": "2027-02-10"
+    },
+    "voo": {
+      "precoDireto": 774,
+      "companhia": "easyJet",
+      "detalhe": "LIS 13:10 → SID 16:30"
+    },
+    "hotel": {
+      "precoTotal": 2491,
+      "regime": "Tudo incluído",
+      "fonte": "Booking.com"
+    },
+    "totalPacote": 3265
+  },
+  {
+    "data": "2026-07-20T15:30:47.319Z",
+    "datas": {
+      "ida": "2027-02-04",
+      "volta": "2027-02-10"
+    },
+    "voo": {
+      "precoDireto": 774,
+      "companhia": "easyJet",
+      "detalhe": "LIS 13:10 → SID 16:30"
+    },
+    "hotel": {
+      "precoTotal": 2494,
+      "regime": "Tudo incluído",
+      "fonte": "Booking.com"
+    },
+    "totalPacote": 3268
+  },
+  {
+    "data": "2026-07-21T13:04:41.422Z",
+    "datas": {
+      "ida": "2027-02-04",
+      "volta": "2027-02-10"
+    },
+    "voo": {
+      "precoDireto": 774,
+      "companhia": "easyJet",
+      "detalhe": "LIS 13:10 → SID 16:30"
+    },
+    "hotel": {
+      "precoTotal": 2491,
+      "regime": "Tudo incluído",
+      "fonte": "Booking.com"
+    },
+    "totalPacote": 3265
+  },
+  {
+    "data": "2026-07-22T13:11:04.104Z",
+    "datas": {
+      "ida": "2027-02-04",
+      "volta": "2027-02-10"
+    },
+    "voo": {
+      "precoDireto": 774,
+      "companhia": "easyJet",
+      "detalhe": "LIS 13:10 → SID 16:30"
+    },
+    "hotel": {
+      "precoTotal": 2489,
+      "regime": "Tudo incluído",
+      "fonte": "Booking.com"
+    },
+    "totalPacote": 3263
+  },
+  {
+    "data": "2026-07-23T13:14:22.688Z",
+    "datas": {
+      "ida": "2027-02-04",
+      "volta": "2027-02-10"
+    },
+    "voo": {
+      "precoDireto": 774,
+      "companhia": "easyJet",
+      "detalhe": "LIS 13:10 → SID 16:30"
+    },
+    "hotel": {
+      "precoTotal": 2492,
+      "regime": "Tudo incluído",
+      "fonte": "Booking.com"
+    },
+    "totalPacote": 3266
+  },
+  {
+    "data": "2026-07-24T13:05:49.347Z",
+    "datas": {
+      "ida": "2027-02-04",
+      "volta": "2027-02-10"
+    },
+    "voo": {
+      "precoDireto": 749,
+      "companhia": "easyJet",
+      "detalhe": "LIS 13:10 → SID 16:30"
+    },
+    "hotel": {
+      "precoTotal": 2492,
+      "regime": "Tudo incluído",
+      "fonte": "Booking.com"
+    },
+    "totalPacote": 3241
+  },
+  {
+    "data": "2026-07-25T11:51:58.508Z",
+    "datas": {
+      "ida": "2027-02-04",
+      "volta": "2027-02-10"
+    },
+    "voo": {
+      "precoDireto": 749,
+      "companhia": "easyJet",
+      "detalhe": "LIS 13:10 → SID 16:30"
+    },
+    "hotel": {
+      "precoTotal": 2491,
+      "regime": "Tudo incluído",
+      "fonte": "Booking.com"
+    },
+    "totalPacote": 3240
+  },
+  {
+    "data": "2026-07-26T11:48:22.647Z",
+    "datas": {
+      "ida": "2027-02-04",
+      "volta": "2027-02-10"
+    },
+    "voo": {
+      "precoDireto": 749,
+      "companhia": "easyJet",
+      "detalhe": "LIS 13:10 → SID 16:30"
+    },
+    "hotel": {
+      "precoTotal": 2491,
+      "regime": "Tudo incluído",
+      "fonte": "Booking.com"
+    },
+    "totalPacote": 3240
+  },
+  {
+    "data": "2026-07-27T16:35:53.926Z",
+    "datas": {
+      "ida": "2027-02-04",
+      "volta": "2027-02-10"
+    },
+    "voo": {
+      "precoDireto": 774,
+      "companhia": "easyJet",
+      "detalhe": "LIS 13:10 → SID 16:30"
+    },
+    "hotel": {
+      "precoTotal": 2495,
+      "regime": "Tudo incluído",
+      "fonte": "Booking.com"
+    },
+    "totalPacote": 3269
+  },
+  {
+    "data": "2026-07-28T15:54:47.192Z",
+    "datas": {
+      "ida": "2027-02-04",
+      "volta": "2027-02-10"
+    },
+    "voo": {
+      "precoDireto": 774,
+      "companhia": "easyJet",
+      "detalhe": "LIS 13:10 → SID 16:30"
+    },
+    "hotel": null,
+    "totalPacote": null
+  },
+  {
+    "data": "2026-07-29T15:35:37.317Z",
+    "datas": {
+      "ida": "2027-02-04",
+      "volta": "2027-02-10"
+    },
+    "voo": {
+      "precoDireto": 774,
+      "companhia": "easyJet",
+      "detalhe": "LIS 13:10 → SID 16:30"
+    },
+    "hotel": null,
+    "totalPacote": null
+  },
+  {
+    "data": "2026-07-30T13:17:52.035Z",
+    "datas": {
+      "ida": "2027-02-04",
+      "volta": "2027-02-10"
+    },
+    "voo": {
+      "precoDireto": 752,
+      "companhia": "easyJet",
+      "detalhe": "LIS 13:10 → SID 16:30"
+    },
+    "hotel": null,
+    "totalPacote": null
+  },
+  {
+    "data": "2026-07-31T10:42:11.224Z",
+    "datas": {
+      "ida": "2027-02-04",
+      "volta": "2027-02-10"
+    },
+    "voo": {
+      "precoDireto": 774,
+      "companhia": "easyJet",
+      "detalhe": "LIS 13:10 → SID 16:30"
+    },
+    "hotel": null,
+    "totalPacote": null
+  },
+  {
+    "data": "2026-08-01T10:01:42.955Z",
+    "datas": {
+      "ida": "2027-02-04",
+      "volta": "2027-02-10"
+    },
+    "voo": {
+      "precoDireto": 774,
+      "companhia": "easyJet",
+      "detalhe": "LIS 13:10 → SID 16:30"
+    },
+    "hotel": null,
+    "totalPacote": null
+  },
+  {
+    "data": "2026-08-02T10:00:10.454Z",
+    "datas": {
+      "ida": "2027-02-04",
+      "volta": "2027-02-10"
+    },
+    "voo": {
+      "precoDireto": 774,
+      "companhia": "easyJet",
+      "detalhe": "LIS 13:10 → SID 16:30"
+    },
+    "hotel": null,
+    "totalPacote": null
+  },
+  {
+    "data": "2026-08-03T11:27:47.397Z",
+    "datas": {
+      "ida": "2027-02-04",
+      "volta": "2027-02-10"
+    },
+    "voo": {
+      "precoDireto": 774,
+      "companhia": "easyJet",
+      "detalhe": "LIS 13:10 → SID 16:30"
+    },
+    "hotel": null,
+    "totalPacote": null
+  },
+  {
+    "data": "2026-08-04T10:41:53.819Z",
+    "datas": {
+      "ida": "2027-02-04",
+      "volta": "2027-02-10"
+    },
+    "voo": {
+      "precoDireto": 774,
+      "companhia": "easyJet",
+      "detalhe": "LIS 13:10 → SID 16:30"
+    },
+    "hotel": null,
+    "totalPacote": null
+  },
+  {
+    "data": "2026-08-05T10:38:23.275Z",
+    "datas": {
+      "ida": "2027-02-04",
+      "volta": "2027-02-10"
+    },
+    "voo": {
+      "precoDireto": 774,
+      "companhia": "easyJet",
+      "detalhe": "LIS 13:10 → SID 16:30"
+    },
+    "hotel": {
+      "precoTotal": 2489,
+      "regime": "Tudo incluído",
+      "fonte": "Booking.com"
+    },
+    "totalPacote": 3263
+  },
+  {
+    "data": "2026-08-06T10:41:40.070Z",
+    "datas": {
+      "ida": "2027-02-04",
+      "volta": "2027-02-10"
+    },
+    "voo": {
+      "precoDireto": 774,
+      "companhia": "easyJet",
+      "detalhe": "LIS 13:10 → SID 16:30"
+    },
+    "hotel": {
+      "precoTotal": 2493,
+      "regime": "Tudo incluído",
+      "fonte": "Booking.com"
+    },
+    "totalPacote": 3267
+  },
+  {
+    "data": "2026-08-07T09:02:01.828Z",
+    "datas": {
+      "ida": "2027-02-04",
+      "volta": "2027-02-10"
+    },
+    "voo": {
+      "precoDireto": 774,
+      "companhia": "easyJet",
+      "detalhe": "LIS 13:10 → SID 16:30"
+    },
+    "hotel": {
+      "precoTotal": 2490,
+      "regime": "Tudo incluído",
+      "fonte": "Booking.com"
+    },
+    "totalPacote": 3264
+  },
+  {
+    "data": "2026-08-08T08:44:53.257Z",
+    "datas": {
+      "ida": "2027-02-04",
+      "volta": "2027-02-10"
+    },
+    "voo": {
+      "precoDireto": 804,
+      "companhia": "easyJet",
+      "detalhe": "LIS 13:10 → SID 16:30"
+    },
+    "hotel": null,
+    "totalPacote": null
+  },
+  {
+    "data": "2026-08-09T08:45:50.449Z",
+    "datas": {
+      "ida": "2027-02-04",
+      "volta": "2027-02-10"
+    },
+    "voo": {
+      "precoDireto": 782,
+      "companhia": "easyJet",
+      "detalhe": "LIS 13:10 → SID 16:30"
+    },
+    "hotel": {
+      "precoTotal": 2491,
+      "regime": "Tudo incluído",
+      "fonte": "Booking.com"
+    },
+    "totalPacote": 3273
+  },
+  {
+    "data": "2026-08-10T09:25:28.399Z",
+    "datas": {
+      "ida": "2027-02-04",
+      "volta": "2027-02-10"
+    },
+    "voo": {
+      "precoDireto": 826,
+      "companhia": "easyJet",
+      "detalhe": "LIS 13:10 → SID 16:30"
+    },
+    "hotel": {
+      "precoTotal": 2489,
+      "regime": "Tudo incluído",
+      "fonte": "Booking.com"
+    },
+    "totalPacote": 3315
+  },
+  {
+    "data": "2026-08-11T08:59:52.840Z",
+    "datas": {
+      "ida": "2027-02-04",
+      "volta": "2027-02-10"
+    },
+    "voo": {
+      "precoDireto": 848,
+      "companhia": "easyJet",
+      "detalhe": "LIS 13:10 → SID 16:30"
+    },
+    "hotel": {
+      "precoTotal": 2493,
+      "regime": "Tudo incluído",
+      "fonte": "Booking.com"
+    },
+    "totalPacote": 3341
+  },
+  {
+    "data": "2026-08-12T09:14:10.821Z",
+    "datas": {
+      "ida": "2027-02-04",
+      "volta": "2027-02-10"
+    },
+    "voo": {
+      "precoDireto": 848,
+      "companhia": "easyJet",
+      "detalhe": "LIS 13:10 → SID 16:30"
+    },
+    "hotel": {
+      "precoTotal": 2491,
+      "regime": "Tudo incluído",
+      "fonte": "Booking.com"
+    },
+    "totalPacote": 3339
+  },
+  {
+    "data": "2026-08-13T09:14:59.987Z",
+    "datas": {
+      "ida": "2027-02-04",
+      "volta": "2027-02-10"
+    },
+    "voo": {
+      "precoDireto": 848,
+      "companhia": "easyJet",
+      "detalhe": "LIS 13:10 → SID 16:30"
+    },
+    "hotel": {
+      "precoTotal": 2491,
+      "regime": "Tudo incluído",
+      "fonte": "Booking.com"
+    },
+    "totalPacote": 3339
+  },
+  {
+    "data": "2026-08-14T09:09:32.067Z",
+    "datas": {
+      "ida": "2027-02-04",
+      "volta": "2027-02-10"
+    },
+    "voo": {
+      "precoDireto": 848,
+      "companhia": "easyJet",
+      "detalhe": "LIS 13:10 → SID 16:30"
+    },
+    "hotel": {
+      "precoTotal": 2487,
+      "regime": "Tudo incluído",
+      "fonte": "Booking.com"
+    },
+    "totalPacote": 3335
+  },
+  {
+    "data": "2026-08-15T08:31:44.281Z",
+    "datas": {
+      "ida": "2027-02-04",
+      "volta": "2027-02-10"
+    },
+    "voo": {
+      "precoDireto": 848,
+      "companhia": "easyJet",
+      "detalhe": "LIS 13:10 → SID 16:30"
+    },
+    "hotel": {
+      "precoTotal": 2490,
+      "regime": "Tudo incluído",
+      "fonte": "Booking.com"
+    },
+    "totalPacote": 3338
+  },
+  {
+    "data": "2026-08-16T08:32:13.031Z",
+    "datas": {
+      "ida": "2027-02-04",
+      "volta": "2027-02-10"
+    },
+    "voo": {
+      "precoDireto": 848,
+      "companhia": "easyJet",
+      "detalhe": "LIS 13:10 → SID 16:30"
+    },
+    "hotel": {
+      "precoTotal": 2490,
+      "regime": "Tudo incluído",
+      "fonte": "Booking.com"
+    },
+    "totalPacote": 3338
+  },
+  {
+    "data": "2026-08-17T08:46:07.342Z",
+    "datas": {
+      "ida": "2027-02-04",
+      "volta": "2027-02-10"
+    },
+    "voo": {
+      "precoDireto": 848,
+      "companhia": "easyJet",
+      "detalhe": "LIS 13:10 → SID 16:30"
+    },
+    "hotel": {
+      "precoTotal": 2484,
+      "regime": "Tudo incluído",
+      "fonte": "Booking.com"
+    },
+    "totalPacote": 3332
+  },
+  {
+    "data": "2026-08-18T08:39:39.637Z",
+    "datas": {
+      "ida": "2027-02-04",
+      "volta": "2027-02-10"
+    },
+    "voo": {
+      "precoDireto": 848,
+      "companhia": "easyJet",
+      "detalhe": "LIS 13:10 → SID 16:30"
+    },
+    "hotel": {
+      "precoTotal": 2481,
+      "regime": "Tudo incluído",
+      "fonte": "Booking.com"
+    },
+    "totalPacote": 3329
+  },
+  {
+    "data": "2026-08-19T08:40:07.163Z",
+    "datas": {
+      "ida": "2027-02-04",
+      "volta": "2027-02-10"
+    },
+    "voo": {
+      "precoDireto": 848,
+      "companhia": "easyJet",
+      "detalhe": "LIS 13:10 → SID 16:30"
+    },
+    "hotel": {
+      "precoTotal": 2484,
+      "regime": "Tudo incluído",
+      "fonte": "Booking.com"
+    },
+    "totalPacote": 3332
+  },
+  {
+    "data": "2026-08-20T08:41:07.943Z",
+    "datas": {
+      "ida": "2027-02-04",
+      "volta": "2027-02-10"
+    },
+    "voo": {
+      "precoDireto": 848,
+      "companhia": "easyJet",
+      "detalhe": "LIS 13:10 → SID 16:30"
+    },
+    "hotel": {
+      "precoTotal": 2486,
+      "regime": "Tudo incluído",
+      "fonte": "Booking.com"
+    },
+    "totalPacote": 3334
+  },
+  {
+    "data": "2026-08-21T08:42:40.628Z",
+    "datas": {
+      "ida": "2027-02-04",
+      "volta": "2027-02-10"
+    },
+    "voo": {
+      "precoDireto": 848,
+      "companhia": "easyJet",
+      "detalhe": "LIS 13:10 → SID 16:30"
+    },
+    "hotel": {
+      "precoTotal": 2488,
+      "regime": "Tudo incluído",
+      "fonte": "Booking.com"
+    },
+    "totalPacote": 3336
+  },
+  {
+    "data": "2026-08-22T08:32:42.164Z",
+    "datas": {
+      "ida": "2027-02-04",
+      "volta": "2027-02-10"
+    },
+    "voo": {
+      "precoDireto": 848,
+      "companhia": "easyJet",
+      "detalhe": "LIS 13:10 → SID 16:30"
+    },
+    "hotel": {
+      "precoTotal": 2479,
+      "regime": "Tudo incluído",
+      "fonte": "Booking.com"
+    },
+    "totalPacote": 3327
+  },
+  {
+    "data": "2026-08-23T08:32:57.104Z",
+    "datas": {
+      "ida": "2027-02-04",
+      "volta": "2027-02-10"
+    },
+    "voo": {
+      "precoDireto": 848,
+      "companhia": "easyJet",
+      "detalhe": "LIS 13:10 → SID 16:30"
+    },
+    "hotel": null,
+    "totalPacote": null
+  },
+  {
+    "data": "2026-08-24T08:51:05.989Z",
+    "datas": {
+      "ida": "2027-02-04",
+      "volta": "2027-02-10"
+    },
+    "voo": {
+      "precoDireto": 848,
+      "companhia": "easyJet",
+      "detalhe": "LIS 13:10 → SID 16:30"
+    },
+    "hotel": {
+      "precoTotal": 2495,
+      "regime": "Tudo incluído",
+      "fonte": "Booking.com"
+    },
+    "totalPacote": 3343
+  },
+  {
+    "data": "2026-08-25T08:45:29.607Z",
+    "datas": {
+      "ida": "2027-02-04",
+      "volta": "2027-02-10"
+    },
+    "voo": {
+      "precoDireto": 848,
+      "companhia": "easyJet",
+      "detalhe": "LIS 13:10 → SID 16:30"
+    },
+    "hotel": {
+      "precoTotal": 2492,
+      "regime": "Tudo incluído",
+      "fonte": "Booking.com"
+    },
+    "totalPacote": 3340
+  },
+  {
+    "data": "2026-08-26T08:47:16.983Z",
+    "datas": {
+      "ida": "2027-02-04",
+      "volta": "2027-02-10"
+    },
+    "voo": {
+      "precoDireto": 848,
+      "companhia": "easyJet",
+      "detalhe": "LIS 13:10 → SID 16:30"
+    },
+    "hotel": {
+      "precoTotal": 2490,
+      "regime": "Tudo incluído",
+      "fonte": "Booking.com"
+    },
+    "totalPacote": 3338
+  },
+  {
+    "data": "2026-08-27T18:57:12.428Z",
+    "datas": {
+      "ida": "2027-02-04",
+      "volta": "2027-02-10"
+    },
+    "voo": {
+      "precoDireto": 848,
+      "companhia": "easyJet",
+      "detalhe": "LIS 13:10 → SID 16:30"
+    },
+    "hotel": {
+      "precoTotal": 2480,
+      "regime": "Tudo incluído",
+      "fonte": "Booking.com"
+    },
+    "totalPacote": 3328
+  },
+  {
+    "data": "2026-08-28T19:58:56.269Z",
+    "datas": {
+      "ida": "2027-02-04",
+      "volta": "2027-02-10"
+    },
+    "voo": {
+      "precoDireto": 848,
+      "companhia": "easyJet",
+      "detalhe": "LIS 13:10 → SID 16:30"
+    },
+    "hotel": {
+      "precoTotal": 2495,
+      "regime": "Tudo incluído",
+      "fonte": "Booking.com"
+    },
+    "totalPacote": 3343
+  },
+  {
+    "data": "2026-08-29T13:41:45.820Z",
+    "datas": {
+      "ida": "2027-02-04",
+      "volta": "2027-02-10"
+    },
+    "voo": {
+      "precoDireto": 848,
+      "companhia": "easyJet",
+      "detalhe": "LIS 13:10 → SID 16:30"
+    },
+    "hotel": {
+      "precoTotal": 2482,
+      "regime": "Tudo incluído",
+      "fonte": "Booking.com"
+    },
+    "totalPacote": 3330
+  },
+  {
+    "data": "2026-08-30T13:39:25.992Z",
+    "datas": {
+      "ida": "2027-02-04",
+      "volta": "2027-02-10"
+    },
+    "voo": {
+      "precoDireto": 848,
+      "companhia": "easyJet",
+      "detalhe": "LIS 13:10 → SID 16:30"
+    },
+    "hotel": null,
+    "totalPacote": null
+  },
+  {
+    "data": "2026-08-31T15:57:24.595Z",
+    "datas": {
+      "ida": "2027-02-04",
+      "volta": "2027-02-10"
+    },
+    "voo": {
+      "precoDireto": 809,
+      "companhia": "easyJet",
+      "detalhe": "LIS 13:10 → SID 16:30"
+    },
+    "hotel": null,
+    "totalPacote": null
+  },
+  {
+    "data": "2026-09-01T13:14:30.047Z",
+    "datas": {
+      "ida": "2027-02-04",
+      "volta": "2027-02-10"
+    },
+    "voo": {
+      "precoDireto": 809,
+      "companhia": "easyJet",
+      "detalhe": "LIS 13:10 → SID 16:30"
+    },
+    "hotel": null,
+    "totalPacote": null
+  },
+  {
+    "data": "2026-09-02T12:38:02.938Z",
+    "datas": {
+      "ida": "2027-02-04",
+      "volta": "2027-02-10"
+    },
+    "voo": {
+      "precoDireto": 776,
+      "companhia": "easyJet",
+      "detalhe": "LIS 13:10 → SID 16:30"
+    },
+    "hotel": null,
+    "totalPacote": null
+  },
+  {
+    "data": "2026-09-03T12:40:56.108Z",
+    "datas": {
+      "ida": "2027-02-04",
+      "volta": "2027-02-10"
+    },
+    "voo": {
+      "precoDireto": 776,
+      "companhia": "easyJet",
+      "detalhe": "LIS 13:10 → SID 16:30"
+    },
+    "hotel": {
+      "precoTotal": 2490,
+      "regime": "Tudo incluído",
+      "fonte": "Booking.com"
+    },
+    "totalPacote": 3266
+  },
+  {
+    "data": "2026-09-04T12:34:54.017Z",
+    "datas": {
+      "ida": "2027-02-04",
+      "volta": "2027-02-10"
+    },
+    "voo": {
+      "precoDireto": 830,
+      "companhia": "easyJet",
+      "detalhe": "LIS 13:10 → SID 16:30"
+    },
+    "hotel": {
+      "precoTotal": 2479,
+      "regime": "Tudo incluído",
+      "fonte": "Booking.com"
+    },
+    "totalPacote": 3309
+  },
+  {
+    "data": "2026-09-05T11:43:01.864Z",
+    "datas": {
+      "ida": "2027-02-04",
+      "volta": "2027-02-10"
+    },
+    "voo": {
+      "precoDireto": 830,
+      "companhia": "easyJet",
+      "detalhe": "LIS 13:10 → SID 16:30"
+    },
+    "hotel": null,
+    "totalPacote": null
+  },
+  {
+    "data": "2026-09-06T12:00:43.056Z",
+    "datas": {
+      "ida": "2027-02-04",
+      "volta": "2027-02-10"
+    },
+    "voo": {
+      "precoDireto": 830,
+      "companhia": "easyJet",
+      "detalhe": "LIS 13:10 → SID 16:30"
+    },
+    "hotel": {
+      "precoTotal": 2492,
+      "regime": "Tudo incluído",
+      "fonte": "Booking.com"
+    },
+    "totalPacote": 3322
+  },
+  {
+    "data": "2026-09-07T14:04:35.867Z",
+    "datas": {
+      "ida": "2027-02-04",
+      "volta": "2027-02-10"
+    },
+    "voo": {
+      "precoDireto": 867,
+      "companhia": "easyJet",
+      "detalhe": "LIS 13:10 → SID 16:30"
+    },
+    "hotel": {
+      "precoTotal": 2492,
+      "regime": "Tudo incluído",
+      "fonte": "Booking.com"
+    },
+    "totalPacote": 3359
+  },
+  {
+    "data": "2026-09-08T12:41:39.258Z",
+    "datas": {
+      "ida": "2027-02-04",
+      "volta": "2027-02-10"
+    },
+    "voo": {
+      "precoDireto": 884,
+      "companhia": "easyJet",
+      "detalhe": "LIS 13:10 → SID 16:30"
+    },
+    "hotel": {
+      "precoTotal": 2736,
+      "regime": "Tudo incluído",
+      "fonte": "Destinia"
+    },
+    "totalPacote": 3620
+  },
+  {
+    "data": "2026-09-09T12:48:17.047Z",
+    "datas": {
+      "ida": "2027-02-04",
+      "volta": "2027-02-10"
+    },
+    "voo": {
+      "precoDireto": 884,
+      "companhia": "easyJet",
+      "detalhe": "LIS 13:10 → SID 16:30"
+    },
+    "hotel": {
+      "precoTotal": 2489,
+      "regime": null,
+      "fonte": "Booking.com"
+    },
+    "totalPacote": 3373
+  },
+  {
+    "data": "2026-09-10T12:46:26.627Z",
+    "datas": {
+      "ida": "2027-02-04",
+      "volta": "2027-02-10"
+    },
+    "voo": {
+      "precoDireto": 884,
+      "companhia": "easyJet",
+      "detalhe": "LIS 13:10 → SID 16:30"
+    },
+    "hotel": {
+      "precoTotal": 2494,
+      "regime": null,
+      "fonte": "Booking.com"
+    },
+    "totalPacote": 3378
+  },
+  {
+    "data": "2026-09-11T12:41:14.372Z",
+    "datas": {
+      "ida": "2027-02-04",
+      "volta": "2027-02-10"
+    },
+    "voo": {
+      "precoDireto": 850,
+      "companhia": "easyJet",
+      "detalhe": "LIS 13:10 → SID 16:30"
+    },
+    "hotel": {
+      "precoTotal": 2497,
+      "regime": null,
+      "fonte": "Booking.com"
+    },
+    "totalPacote": 3347
+  },
+  {
+    "data": "2026-09-12T12:01:12.293Z",
+    "datas": {
+      "ida": "2027-02-04",
+      "volta": "2027-02-10"
+    },
+    "voo": {
+      "precoDireto": 850,
+      "companhia": "easyJet",
+      "detalhe": "LIS 13:10 → SID 16:30"
+    },
+    "hotel": {
+      "precoTotal": 2494,
+      "regime": "Tudo incluído",
+      "fonte": "Booking.com"
+    },
+    "totalPacote": 3344
+  },
+  {
+    "data": "2026-09-13T13:10:48.134Z",
+    "datas": {
+      "ida": "2027-02-04",
+      "volta": "2027-02-10"
+    },
+    "voo": {
+      "precoDireto": 833,
+      "companhia": "easyJet",
+      "detalhe": "LIS 13:10 → SID 16:30"
+    },
+    "hotel": {
+      "precoTotal": 2489,
+      "regime": "Tudo incluído",
+      "fonte": "Booking.com"
+    },
+    "totalPacote": 3322
+  },
+  {
+    "data": "2026-09-14T14:50:03.085Z",
+    "datas": {
+      "ida": "2027-02-04",
+      "volta": "2027-02-10"
+    },
+    "voo": {
+      "precoDireto": 850,
+      "companhia": "easyJet",
+      "detalhe": "LIS 13:10 → SID 16:30"
+    },
+    "hotel": {
+      "precoTotal": 2495,
+      "regime": "Tudo incluído",
+      "fonte": "Booking.com"
+    },
+    "totalPacote": 3345
+  },
+  {
+    "data": "2026-09-15T13:16:40.386Z",
+    "datas": {
+      "ida": "2027-02-04",
+      "volta": "2027-02-10"
+    },
+    "voo": {
+      "precoDireto": 833,
+      "companhia": "easyJet",
+      "detalhe": "LIS 13:10 → SID 16:30"
+    },
+    "hotel": {
+      "precoTotal": 2493,
+      "regime": "Tudo incluído",
+      "fonte": "Booking.com"
+    },
+    "totalPacote": 3326
+  },
+  {
+    "data": "2026-09-16T13:14:41.453Z",
+    "datas": {
+      "ida": "2027-02-04",
+      "volta": "2027-02-10"
+    },
+    "voo": {
+      "precoDireto": 836,
+      "companhia": "easyJet",
+      "detalhe": "LIS 13:10 → SID 16:30"
+    },
+    "hotel": {
+      "precoTotal": 2462,
+      "regime": "Tudo incluído",
+      "fonte": "Booking.com"
+    },
+    "totalPacote": 3298
+  },
+  {
+    "data": "2026-09-17T13:10:22.233Z",
+    "datas": {
+      "ida": "2027-02-04",
+      "volta": "2027-02-10"
+    },
+    "voo": {
+      "precoDireto": 819,
+      "companhia": "easyJet",
+      "detalhe": "LIS 13:10 → SID 16:30"
+    },
+    "hotel": {
+      "precoTotal": 2460,
+      "regime": "Tudo incluído",
+      "fonte": "Booking.com"
+    },
+    "totalPacote": 3279
+  },
+  {
+    "data": "2026-09-18T12:47:34.003Z",
+    "datas": {
+      "ida": "2027-02-04",
+      "volta": "2027-02-10"
+    },
+    "voo": {
+      "precoDireto": 819,
+      "companhia": "easyJet",
+      "detalhe": "LIS 13:10 → SID 16:30"
+    },
+    "hotel": {
+      "precoTotal": 2465,
+      "regime": "Tudo incluído",
+      "fonte": "Booking.com"
+    },
+    "totalPacote": 3284
+  }
+]

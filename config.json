@@ -1,29 +1,25 @@
 {
-  "voo": {
+  "viagem": {
+    "nome": "Mondsee",
+    "titulo": "⛳ Mondsee 8–11 jul",
     "origem": "LIS",
-    "destino": "SID",
-    "adultos": 2,
-    "criancas": 1,
+    "adultos": 1,
+    "criancas": 0,
     "moeda": "EUR",
-    "alvoTotal": 850,
-    "quedaAlertaPct": 8
+    "datas": { "ida": "2027-07-08", "volta": "2027-07-11" },
+    "partidaIdaAte": "10:00",
+    "alvoTotal": 380,
+    "quedaAlertaPct": 8,
+    "destinos": [
+      { "codigo": "MUC", "nome": "Munique", "maxEscalas": 0 },
+      { "codigo": "SZG", "nome": "Salzburgo", "maxEscalas": 1 }
+    ],
+    "sacoGolfe": {
+      "trajetos": 2,
+      "porTrajetoTap": 45,
+      "porTrajetoOutras": 60,
+      "confirmadoOutras": false
+    }
   },
-  "hotel": {
-    "nome": "Meliá Dunas Beach Resort & Spa",
-    "cidade": "Santa Maria, Sal, Cape Verde",
-    "noites": 6,
-    "adultos": 2,
-    "criancas": 1,
-    "idadesCriancas": [4],
-    "propertyToken": "ChoI09y9xJu5huHOARoNL2cvMTFjbjZoNTNfZxAB",
-    "moeda": "EUR",
-    "alvoTotal": null,
-    "quedaAlertaPct": 8
-  },
-  "datasReferencia": { "ida": "2027-02-04", "volta": "2027-02-10" },
-  "datasAlternativas": [
-    { "ida": "2027-02-03", "volta": "2027-02-09" },
-    { "ida": "2027-02-05", "volta": "2027-02-11" }
-  ],
-  "verificarAlternativasNoDia": "domingo"
+  "resumoSemanalNoDia": "domingo"
 }

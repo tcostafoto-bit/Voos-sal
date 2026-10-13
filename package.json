@@ -1,11 +1,12 @@
 {
-  "name": "voos-sal",
-  "version": "1.0.0",
+  "name": "voos-alertas",
+  "version": "2.0.0",
   "private": true,
   "type": "module",
-  "description": "Alerta automático de preços voo+hotel Lisboa->Sal via SerpAPI e Telegram.",
+  "description": "Alerta automático de preços de voo (LIS → Munique/Salzburgo, com saco de golfe) via SerpAPI e Telegram.",
   "scripts": {
-    "check": "node scripts/check-prices.mjs"
+    "check": "node scripts/check-prices.mjs",
+    "test": "node --test testes/*.mjs"
   },
   "engines": {
     "node": ">=20"
