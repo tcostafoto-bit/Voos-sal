@@ -103,12 +103,18 @@ Vercel), que lê `data/history.json` do GitHub. Lê a branch indicada em
 `VITE_GITHUB_BRANCH` — enquanto esta adaptação não estiver em `main`, o painel
 publicado continua a mostrar os dados antigos.
 
-## Arquivo
+## O que havia antes
 
-- [arquivo/sal/](./arquivo/sal/) — o alerta anterior, Lisboa → Sal com hotel
-  (fev 2027), desligado a 13/10/2026. Guarda 74 verificações e a nota sobre o
-  preço do hotel do Google vir ~40% acima do real, que vale a pena ler antes de
-  voltar a seguir hotéis.
+Até 13/10/2026 isto seguia Lisboa → Sal, voo + hotel, para fevereiro de 2027.
+Foi desligado e apagado a pedido. Está tudo no histórico do git (a configuração,
+as 74 verificações e a função `fetchHotel`, no commit anterior a `729d483`).
+
+Uma coisa que se aprendeu lá e vale guardar: o preço de hotel devolvido pela
+SerpAPI (`google_hotels`) vinha **~40% acima** do preço real de reserva direta,
+mesmo com a fonte oficial e a ocupação certa — confirmado contra o checkout da
+Meliá (API 1903 €, site 1146 €). Servia como sinal de tendência, nunca como
+valor absoluto. Quem voltar a seguir hotéis tem de contar com isso ao pôr o
+alvo. O preço dos voos (`google_flights`) não tem este problema.
 
 ## Outros sistemas neste repositório
 
