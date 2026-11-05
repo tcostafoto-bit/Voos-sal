@@ -699,5 +699,33 @@
       "codigo": "MUC",
       "total": 441
     }
+  },
+  {
+    "data": "2026-11-05T16:16:08.792Z",
+    "datas": {
+      "ida": "2027-07-08",
+      "volta": "2027-07-11"
+    },
+    "destinos": {
+      "MUC": {
+        "precoVoo": 368,
+        "saco": 90,
+        "sacoPorTrajeto": 45,
+        "sacoConfirmado": true,
+        "total": 458,
+        "companhia": "Tap Air Portugal",
+        "companhias": [
+          "Tap Air Portugal"
+        ],
+        "escalas": 0,
+        "partidaIda": "08:40",
+        "detalhe": "LIS 08:40 → MUC 12:45"
+      },
+      "SZG": null
+    },
+    "melhor": {
+      "codigo": "MUC",
+      "total": 458
+    }
   }
 ]
