@@ -783,5 +783,33 @@
       "codigo": "MUC",
       "total": 473
     }
+  },
+  {
+    "data": "2026-11-08T14:51:39.029Z",
+    "datas": {
+      "ida": "2027-07-08",
+      "volta": "2027-07-11"
+    },
+    "destinos": {
+      "MUC": {
+        "precoVoo": 353,
+        "saco": 120,
+        "sacoPorTrajeto": 60,
+        "sacoConfirmado": false,
+        "total": 473,
+        "companhia": "Lufthansa",
+        "companhias": [
+          "Lufthansa"
+        ],
+        "escalas": 0,
+        "partidaIda": "06:15",
+        "detalhe": "LIS 06:15 → MUC 10:20"
+      },
+      "SZG": null
+    },
+    "melhor": {
+      "codigo": "MUC",
+      "total": 473
+    }
   }
 ]
